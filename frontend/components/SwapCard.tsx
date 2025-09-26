@@ -12,6 +12,7 @@ import { AmountInput } from './AmountInput';
 import { ConnectWalletDialog } from './ConnectWalletDialog';
 import { RateFeeRow } from './RateFeeRow';
 import { TokenButton } from './TokenButton';
+import { TransactionComplete } from './TransactionComplete';
 
 export function SwapCard() {
   const {
@@ -31,6 +32,7 @@ export function SwapCard() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showConnectDialog, setShowConnectDialog] = useState(false);
+  const [showTransactionComplete, setShowTransactionComplete] = useState(false);
 
   const payAmountNum = parseFloat(payAmount) || 0;
   const receiveAmountNum = calculateReceiveAmount(
@@ -51,8 +53,38 @@ export function SwapCard() {
     if (!isConnected) {
       setShowConnectDialog(true);
     } else {
+      // Simulate swap execution
       console.log('Executing swap...');
+      // Show transaction complete after a brief delay
+      setTimeout(() => {
+        setShowTransactionComplete(true);
+      }, 1000);
     }
+  };
+
+  // Mock transaction data for the completion view
+  const mockTransactionData = {
+    hash: '0x4e39...fc80',
+    timestamp: 'Sep 26 2025 22:41',
+    status: 'executed' as const,
+    fromToken: {
+      symbol: payToken.symbol,
+      amount: payAmountNum,
+      value: payAmountNum * 4012.64,
+      chain: 'Base',
+      icon: '',
+    },
+    toToken: {
+      symbol: receiveToken.symbol,
+      amount: receiveAmountNum,
+      value: receiveAmountNum * 1.0,
+      chain: receiveToken.symbol === 'USDC' ? 'Base' : 'Polygon',
+      icon: '',
+    },
+    rates: {
+      fromRate: 4012.64,
+      toRate: 1.0,
+    },
   };
 
   return (
@@ -329,6 +361,12 @@ export function SwapCard() {
       <ConnectWalletDialog
         open={showConnectDialog}
         onOpenChange={setShowConnectDialog}
+      />
+
+      <TransactionComplete
+        isOpen={showTransactionComplete}
+        onClose={() => setShowTransactionComplete(false)}
+        transactionData={mockTransactionData}
       />
     </>
   );
