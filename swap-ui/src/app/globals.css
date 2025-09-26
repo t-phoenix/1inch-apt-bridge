@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0b0f14;
+  --color-foreground: #ffffff;
+  --color-card: #10151c;
+  --color-border: #1e2632;
+  --color-primary: #1D90F5;
+  --color-muted: #0b0f14;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-green-400: #4ade80;
+  --color-green-500: #22c55e;
+  --color-red-400: #f87171;
+  --radius: 0.75rem;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  background: linear-gradient(135deg, #0b0f14 0%, #030712 100%);
+  color: var(--color-foreground);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+.swap-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  max-width: 460px;
+}
+
+.swap-panel {
+  background: var(--color-muted);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.chip {
+  background: #0e1621;
+  border: 1px solid #223042;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.gradient-button {
+  background: linear-gradient(90deg, #1D90F5 0%, #00D4FF 100%);
+  border: none;
+  transition: all 0.2s ease;
+  color: white;
+  font-weight: 600;
+}
+
+.gradient-button:hover {
+  background: linear-gradient(90deg, #0D7FE5 0%, #00C4EF 100%);
+}
