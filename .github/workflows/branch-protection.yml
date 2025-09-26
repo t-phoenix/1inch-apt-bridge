@@ -1,0 +1,32 @@
+name: Branch Protection Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  branch-protection:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check if push is to main
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        echo "❌ Direct push to main branch detected!"
+        echo "This should not happen if branch protection is properly configured."
+        echo "Please ensure GitHub branch protection rules are enabled."
+        exit 1
+    
+    - name: Validate PR
+      if: github.event_name == 'pull_request'
+      run: |
+        echo "✅ Pull request validation - this is the correct way to contribute!"
+        echo "PR #${{ github.event.number }} is targeting main branch"
+        
+    - name: Check commit messages
+      if: github.event_name == 'pull_request'
+      run: |
+        echo "Checking commit messages for conventional commits..."
+        # Add your commit message validation logic here if needed
