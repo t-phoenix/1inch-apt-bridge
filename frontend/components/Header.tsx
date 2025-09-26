@@ -18,7 +18,7 @@ export function Header() {
       <div className="flex items-center space-x-8">
         <div className="flex items-center space-x-3">
           <Image
-            src="/icons/1inch-logo.svg"
+            src="/icons/1inch-logo.png"
             alt="1inch"
             width={32}
             height={32}
