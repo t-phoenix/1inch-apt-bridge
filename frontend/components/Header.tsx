@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useNotification } from '@/lib/NotificationContext';
 import { useSwapStore } from '@/store/useSwapStore';
 import { HelpCircle, User } from 'lucide-react';
 import Image from 'next/image';
@@ -16,6 +17,7 @@ interface HeaderProps {
 
 export function Header({ isAccountModalOpen, setIsAccountModalOpen }: HeaderProps) {
   const { isConnected } = useSwapStore();
+  const { showInfo } = useNotification();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
 
@@ -32,6 +34,10 @@ export function Header({ isAccountModalOpen, setIsAccountModalOpen }: HeaderProp
     if (setIsAccountModalOpen) {
       setIsAccountModalOpen(false);
     }
+  };
+
+  const handleHelpClick = () => {
+    showInfo('Help & Support feature coming soon!', 'Coming Soon');
   };
 
   return (
@@ -54,7 +60,10 @@ export function Header({ isAccountModalOpen, setIsAccountModalOpen }: HeaderProp
 
       {/* Actions */}
       <div className="flex items-center space-x-4">
-        <button className="p-3 text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all duration-300 rounded-2xl backdrop-blur-sm">
+        <button 
+          onClick={handleHelpClick}
+          className="p-3 text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all duration-300 rounded-2xl backdrop-blur-sm"
+        >
           <HelpCircle size={22} />
         </button>
         

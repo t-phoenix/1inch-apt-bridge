@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useNotification } from '@/lib/NotificationContext';
 import { Copy, ExternalLink, X } from 'lucide-react';
 
 interface AccountModalProps {
@@ -59,17 +60,44 @@ const mockTransactions: Transaction[] = [
 ];
 
 export function AccountModal({ isOpen, onClose }: AccountModalProps) {
+  const { showInfo, showSuccess, showWarning } = useNotification();
+  
   if (!isOpen) return null;
+
+  const handleBuyClick = () => {
+    showInfo('Buy crypto feature coming soon!', 'Coming Soon');
+  };
+
+  const handleReceiveClick = () => {
+    showInfo('Receive feature coming soon!', 'Coming Soon');
+  };
+
+  const handleSendClick = () => {
+    showInfo('Send feature coming soon!', 'Coming Soon');
+  };
+
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText('0x4e39...fc80');
+    showSuccess('Address copied to clipboard!', 'Copied');
+  };
+
+  const handleViewOnExplorer = () => {
+    showInfo('Opening in blockchain explorer - coming soon!', 'Coming Soon');
+  };
+
+  const handleAssetsTab = () => {
+    showInfo('Assets view coming soon!', 'Coming Soon');
+  };
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'swap':
         return (
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center relative">
             <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center absolute -top-1 -left-1">
               <span className="text-white text-xs font-bold">$</span>
             </div>
-            <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center absolute -bottom-1 -right-1">
+            <div className="w-6 h-6 bg-blue-800 rounded-full flex items-center justify-center absolute -bottom-1 -right-1">
               <span className="text-white text-xs font-bold">◊</span>
             </div>
           </div>
@@ -94,7 +122,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
         );
       default:
         return (
-          <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center">
             <span className="text-white text-lg">?</span>
           </div>
         );
@@ -122,7 +150,7 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-[#1a237e] via-[#283593] to-[#7b1fa2] text-white">
+    <div className="fixed inset-0 z-50 bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
       <div className="min-h-screen overflow-y-auto flex justify-center">
         <div className="w-full max-w-md">
           {/* Header */}
@@ -155,10 +183,16 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <button 
+                  onClick={handleCopyAddress}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
                   <Copy size={16} className="text-white/80" />
                 </button>
-                <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <button 
+                  onClick={handleViewOnExplorer}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
                   <ExternalLink size={16} className="text-white/80" />
                 </button>
               </div>
@@ -171,18 +205,27 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
 
             {/* Action Buttons */}
             <div className="grid grid-cols-3 gap-4">
-              <Button className="bg-white/10 hover:bg-white/20 text-white border-0 rounded-2xl py-4 flex items-center justify-center space-x-2">
+              <Button 
+                onClick={handleBuyClick}
+                className="bg-white/10 hover:bg-white/20 text-white border-0 rounded-2xl py-4 flex items-center justify-center space-x-2"
+              >
                 <span className="text-lg">+</span>
                 <span>Buy</span>
               </Button>
-              <Button className="bg-white/10 hover:bg-white/20 text-white border-0 rounded-2xl py-4 flex items-center justify-center space-x-2">
+              <Button 
+                onClick={handleReceiveClick}
+                className="bg-white/10 hover:bg-white/20 text-white border-0 rounded-2xl py-4 flex items-center justify-center space-x-2"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M12 5v14"/>
                   <path d="m19 12-7 7-7-7"/>
                 </svg>
                 <span>Receive</span>
               </Button>
-              <Button className="bg-white/10 hover:bg-white/20 text-white border-0 rounded-2xl py-4 flex items-center justify-center space-x-2">
+              <Button 
+                onClick={handleSendClick}
+                className="bg-white/10 hover:bg-white/20 text-white border-0 rounded-2xl py-4 flex items-center justify-center space-x-2"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="m22 2-7 20-4-9-9-4Z"/>
                 </svg>
@@ -195,7 +238,10 @@ export function AccountModal({ isOpen, onClose }: AccountModalProps) {
         {/* Navigation Tabs */}
         <div className="px-6 mb-6">
           <div className="flex bg-black/20 rounded-2xl p-1">
-            <button className="flex-1 text-center py-3 text-white/60 font-medium">
+            <button 
+              onClick={handleAssetsTab}
+              className="flex-1 text-center py-3 text-white/60 font-medium hover:text-white transition-colors"
+            >
               Assets
             </button>
             <button className="flex-1 text-center py-3 bg-white/20 text-white font-medium rounded-xl">

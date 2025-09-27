@@ -7,6 +7,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { useNotification } from '@/lib/NotificationContext';
 import { useSwapStore } from '@/store/useSwapStore';
 import { useState } from 'react';
 
@@ -23,6 +24,7 @@ const presetSlippages = [
 
 export function SlippageSheet({ open, onOpenChange }: SlippageSheetProps) {
   const { slippageBps, setSlippageBps } = useSwapStore();
+  const { showInfo } = useNotification();
   const [customSlippage, setCustomSlippage] = useState('');
   const [isCustom, setIsCustom] = useState(false);
 
@@ -41,6 +43,18 @@ export function SlippageSheet({ open, onOpenChange }: SlippageSheetProps) {
       setSlippageBps(Math.round(numericValue * 100));
       setIsCustom(true);
     }
+  };
+
+  const handleAutoClick = () => {
+    showInfo('Auto slippage mode - automatically optimized!', 'Auto Mode');
+  };
+
+  const handleCustomTokensClick = () => {
+    showInfo('Custom tokens management coming soon!', 'Coming Soon');
+  };
+
+  const handleAdvancedModeClick = () => {
+    showInfo('Advanced trading mode coming soon!', 'Coming Soon');
   };
 
   return (
@@ -73,7 +87,10 @@ export function SlippageSheet({ open, onOpenChange }: SlippageSheetProps) {
                 </svg>
                 <span className="text-white text-lg font-medium">Slippage tolerance</span>
               </div>
-              <button className="flex items-center space-x-2 hover:bg-[#1a2332] px-3 py-1 rounded-lg transition-colors">
+              <button 
+                onClick={handleAutoClick}
+                className="flex items-center space-x-2 hover:bg-[#1a2332] px-3 py-1 rounded-lg transition-colors"
+              >
                 <span className="text-gray-400 text-sm">Auto</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
                   <path d="m6 9 6 6 6-6"/>
@@ -112,6 +129,7 @@ export function SlippageSheet({ open, onOpenChange }: SlippageSheetProps) {
               
               <Button
                 variant="outline"
+                onClick={() => showInfo('Custom slippage input coming soon!', 'Coming Soon')}
                 className="px-4 py-2 rounded-xl bg-transparent border-gray-600 text-gray-400 hover:bg-[#1a2332]"
               >
                 Custom
@@ -129,12 +147,15 @@ export function SlippageSheet({ open, onOpenChange }: SlippageSheetProps) {
                 </svg>
                 <span className="text-white text-lg font-medium">Custom tokens</span>
               </div>
-              <div className="flex items-center space-x-3">
+              <button 
+                onClick={handleCustomTokensClick}
+                className="flex items-center space-x-3 hover:bg-[#1a2332] px-3 py-2 rounded-lg transition-colors"
+              >
                 <span className="text-blue-400 text-lg">0</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
                   <path d="m9 18 6-6-6-6"/>
                 </svg>
-              </div>
+              </button>
             </div>
           </div>
 
@@ -152,6 +173,7 @@ export function SlippageSheet({ open, onOpenChange }: SlippageSheetProps) {
               <div className="text-gray-400">For extended settings</div>
               <Button
                 variant="link"
+                onClick={handleAdvancedModeClick}
                 className="text-blue-400 hover:text-blue-300 p-0 h-auto"
               >
                 Open advanced mode
