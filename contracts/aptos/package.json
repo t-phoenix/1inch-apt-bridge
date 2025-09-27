@@ -1,0 +1,27 @@
+{
+  "name": "1inch-apt-bridge-aptos",
+  "version": "1.0.0",
+  "description": "Aptos Move contracts for 1inch-apt-bridge cross-chain swaps",
+  "main": "index.js",
+  "scripts": {
+    "compile": "aptos move compile",
+    "test": "aptos move test",
+    "deploy:testnet": "ts-node scripts/deploy.ts",
+    "deploy:mainnet": "NETWORK=mainnet ts-node scripts/deploy.ts",
+    "clean": "aptos move clean",
+    "build": "npm run compile && npm run test"
+  },
+  "keywords": ["aptos", "move", "cross-chain", "htlc", "1inch"],
+  "author": "ETHGlobal 2025 Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@aptos-labs/ts-sdk": "^1.15.0",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  },
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
+  }
+}

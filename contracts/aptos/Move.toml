@@ -1,0 +1,13 @@
+[package]
+name = "oneinch_apt_bridge"
+version = "1.0.0"
+
+[dependencies]
+AptosFramework = { local = "../../../aptos-core/aptos-move/framework" }
+AptosStdlib = { local = "../../../aptos-core/aptos-move/framework/aptos-stdlib" }
+
+[addresses]
+oneinch_apt_bridge = "0x1"
+
+[dev-addresses]
+oneinch_apt_bridge = "0x1"
