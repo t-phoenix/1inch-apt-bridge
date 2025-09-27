@@ -1,34 +1,94 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Copy, ExternalLink } from "lucide-react";
-import TokenIcon from "./TokenIcon";
+import { usePetraWallet } from "@/contexts/PetraWalletContext";
+import { useWallet } from "@/contexts/WalletContext";
+import { HelpCircle, Settings } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 interface NavigationProps {
   onConnectWallet: () => void;
   onAccountClick: () => void;
-  isConnected: boolean;
-  walletAddress?: string;
-  balance?: string;
+  isAdminPage?: boolean;
 }
 
-const Navigation = ({ onConnectWallet, onAccountClick, isConnected, walletAddress, balance }: NavigationProps) => {
+const Navigation = ({ onConnectWallet, onAccountClick, isAdminPage = false }: NavigationProps) => {
+  const location = useLocation();
+  
+  // Get both wallet states
+  const { 
+    isConnected: isMetaMaskConnected, 
+    account: metaMaskAccount, 
+    balance: metaMaskBalance,
+    chainId 
+  } = useWallet();
+  
+  const { 
+    isConnected: isPetraConnected, 
+    account: petraAccount, 
+    formattedBalance: petraBalance,
+    network: petraNetwork 
+  } = usePetraWallet();
+
+  // Determine which wallet to show in primary position
+  const hasAnyConnection = isMetaMaskConnected || isPetraConnected;
+  
+  // Priority: Show active wallet, or MetaMask if both connected
+  const primaryWallet = isMetaMaskConnected ? 'metamask' : isPetraConnected ? 'petra' : null;
+
+  const getNetworkIcon = () => {
+    if (isMetaMaskConnected) {
+      return chainId === 137 ? "🔷" : "🔶"; // Polygon or Ethereum
+    }
+    if (isPetraConnected) {
+      return "🅰️"; // Aptos
+    }
+    return "🔗";
+  };
+
+  const getNetworkName = () => {
+    if (isMetaMaskConnected) {
+      return chainId === 137 ? "Polygon" : "Ethereum";
+    }
+    if (isPetraConnected) {
+      return "Aptos";
+    }
+    return "";
+  };
+
   return (
-    <nav className="flex items-center justify-between px-6 py-4 bg-card/50 backdrop-blur-sm border-b border-border">
-      {/* Logo and Navigation */}
+    <nav className="flex items-center justify-between px-6 py-2 bg-card/50 backdrop-blur-sm border-b border-border">
+      {/* Logo */}
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">1</span>
+          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-base">1</span>
           </div>
-          <span className="text-foreground font-semibold text-xl">inch</span>
+          <span className="text-foreground font-semibold text-lg">inch</span>
         </div>
         
-        <div className="hidden md:flex items-center gap-6 text-muted-foreground">
-          <button className="hover:text-foreground transition-colors">Trade</button>
-          <button className="hover:text-foreground transition-colors">Portfolio</button>
-          <button className="hover:text-foreground transition-colors">DAO</button>
-          <button className="hover:text-foreground transition-colors">Buy Crypto</button>
-          <button className="hover:text-foreground transition-colors">Card</button>
-        </div>
+        {/* Navigation Links */}
+        <nav className="hidden md:flex items-center gap-4">
+          <Link to="/">
+            <Button 
+              variant={location.pathname === '/' ? 'secondary' : 'ghost'} 
+              size="sm"
+              className="text-sm"
+            >
+              👤 User
+            </Button>
+          </Link>
+          
+          <Link to="/admin">
+            <Button 
+              variant={location.pathname === '/admin' ? 'secondary' : 'ghost'} 
+              size="sm"
+              className="text-sm flex items-center gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Admin
+            </Button>
+          </Link>
+        </nav>
       </div>
 
       {/* Right Side Actions */}
@@ -37,25 +97,45 @@ const Navigation = ({ onConnectWallet, onAccountClick, isConnected, walletAddres
           <HelpCircle className="h-5 w-5" />
         </Button>
         
-        {isConnected ? (
-          /* Connected Account Display */
-          <Button
-            variant="ghost"
-            onClick={onAccountClick}
-            className="flex items-center gap-2 bg-secondary hover:bg-secondary/80 px-3 py-2 h-auto"
-          >
-            <TokenIcon symbol="POL" size="sm" />
-            <div className="text-left">
-              <div className="text-foreground font-medium text-sm">{walletAddress}</div>
-              <div className="text-muted-foreground text-xs">{balance}</div>
-            </div>
-          </Button>
+        {hasAnyConnection ? (
+          /* 🔥 DUAL WALLET DISPLAY */
+          <div className="flex items-center gap-2">
+            {/* Secondary Wallet Indicator */}
+            {isMetaMaskConnected && isPetraConnected && (
+              <Badge variant="outline" className="text-xs">
+                {primaryWallet === 'metamask' ? '🅰️' : '🔷'} Connected
+              </Badge>
+            )}
+            
+            {/* Primary Wallet Display */}
+            <Button
+              variant="ghost"
+              onClick={onAccountClick}
+              className="flex items-center gap-2 bg-secondary hover:bg-secondary/80 px-3 py-2 h-auto"
+            >
+              <div className="text-lg">{getNetworkIcon()}</div>
+              <div className="text-left">
+                <div className="flex items-center gap-2">
+                  <span className="text-foreground font-medium text-sm">
+                    {primaryWallet === 'metamask' ? metaMaskAccount : 
+                     petraAccount ? `${petraAccount.slice(0, 6)}...${petraAccount.slice(-4)}` : 'Unknown'}
+                  </span>
+                  <Badge variant="secondary" className="text-xs">
+                    {getNetworkName()}
+                  </Badge>
+                </div>
+                <div className="text-muted-foreground text-xs">
+                  {primaryWallet === 'metamask' ? `${metaMaskBalance} ETH` : `${petraBalance} APT`}
+                </div>
+              </div>
+            </Button>
+          </div>
         ) : (
           <Button 
             onClick={onConnectWallet}
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-6"
           >
-            Connect wallet
+            🔗 Connect wallet
           </Button>
         )}
       </div>

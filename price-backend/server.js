@@ -10,6 +10,166 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
 
+// 🔥 PRICE CACHING & RATE LIMITING
+const priceCache = new Map();
+const CACHE_DURATION = 30 * 1000; // 30 seconds cache
+const COINGECKO_RATE_LIMIT = 1000; // 1 second between calls
+let lastCoinGeckoCall = 0;
+
+/**
+ * 🔥 CACHED & RATE-LIMITED APTOS PRICE FETCHER
+ * Respects CoinGecko rate limits with intelligent caching
+ */
+async function fetchRealAptosPrices(tokens = ['APT', 'USDC']) {
+  const cacheKey = tokens.sort().join(',');
+  
+  // Check cache first
+  const cached = priceCache.get(cacheKey);
+  if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
+    console.log(`💾 Using cached Aptos prices for [${tokens.join(', ')}]`);
+    return cached.data;
+  }
+
+  const results = [];
+  
+  try {
+    console.log(`🦎 Fetching fresh Aptos prices for [${tokens.join(', ')}]...`);
+    
+    // Rate limiting: Wait if needed
+    const timeSinceLastCall = Date.now() - lastCoinGeckoCall;
+    if (timeSinceLastCall < COINGECKO_RATE_LIMIT) {
+      const waitTime = COINGECKO_RATE_LIMIT - timeSinceLastCall;
+      console.log(`⏱️  Rate limiting: waiting ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+    
+    const coinGeckoIds = {
+      'APT': 'aptos',
+      'USDC': 'usd-coin',
+      'USDT': 'tether'
+    };
+    
+    // Batch request for efficiency
+    const tokenIds = tokens
+      .map(symbol => coinGeckoIds[symbol.toUpperCase()])
+      .filter(Boolean);
+    
+    if (tokenIds.length === 0) {
+      throw new Error('No valid tokens to fetch');
+    }
+    
+    const batchUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${tokenIds.join(',')}&vs_currencies=usd&include_24hr_change=true`;
+    console.log(`🌐 CoinGecko batch URL: ${batchUrl}`);
+    
+    // Update rate limit tracker
+    lastCoinGeckoCall = Date.now();
+    
+    const response = await fetch(batchUrl, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': '1inch-apt-bridge/1.0.0'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`CoinGecko API error: ${response.status} - ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    console.log(`📊 CoinGecko response:`, data);
+    
+    // Process results
+    for (const symbol of tokens) {
+      const geckoId = coinGeckoIds[symbol.toUpperCase()];
+      if (!geckoId || !data[geckoId]) {
+        console.warn(`⚠️  No data for ${symbol}, using fallback`);
+        const fallbackPrice = await fetchAptosFallbackPrice(symbol);
+        results.push(fallbackPrice);
+        continue;
+      }
+      
+      const price = data[geckoId].usd;
+      const change24h = data[geckoId].usd_24h_change || 0;
+      
+      console.log(`✅ ${symbol}: $${price} (24h: ${change24h.toFixed(2)}%)`);
+      
+      results.push({
+        symbol: symbol.toUpperCase(),
+        address: TOKEN_ADDRESSES.APTOS[symbol.toUpperCase()] || `aptos_${symbol.toLowerCase()}`,
+        price: price,
+        change24h: change24h,
+        source: 'coingecko',
+        timestamp: Date.now()
+      });
+    }
+    
+    // Cache successful results
+    priceCache.set(cacheKey, {
+      data: results,
+      timestamp: Date.now()
+    });
+    
+    console.log(`💾 Cached Aptos prices for ${CACHE_DURATION/1000}s`);
+    return results;
+    
+  } catch (error) {
+    console.error('❌ CoinGecko API failed:', error.message);
+    
+    // Try to return cached data even if expired
+    if (cached) {
+      console.log('🔄 Using stale cache due to API failure');
+      return cached.data;
+    }
+    
+    // Ultimate fallback: Use known good prices
+    console.log('🆘 Using ultimate fallback prices');
+    return tokens.map(symbol => ({
+      symbol: symbol.toUpperCase(),
+      address: TOKEN_ADDRESSES.APTOS[symbol.toUpperCase()] || `aptos_${symbol.toLowerCase()}`,
+      price: getLastKnownAptosPrices(symbol),
+      change24h: 0,
+      source: 'emergency_fallback',
+      timestamp: Date.now()
+    }));
+  }
+}
+
+/**
+ * Fallback Aptos price sources (only used when CoinGecko completely fails)
+ */
+async function fetchAptosFallbackPrice(symbol) {
+  console.log(`🔄 Using fallback for ${symbol}...`);
+  
+  // Use recent real prices (updated manually)
+  const fallbackPrices = {
+    'APT': 4.13,  // ✅ Last known good APT price
+    'USDC': 1.0,
+    'USDT': 1.0
+  };
+  
+  return {
+    symbol: symbol.toUpperCase(),
+    address: TOKEN_ADDRESSES.APTOS[symbol.toUpperCase()] || `aptos_${symbol.toLowerCase()}`,
+    price: fallbackPrices[symbol.toUpperCase()] || 1.0,
+    change24h: 0,
+    source: 'fallback_static',
+    timestamp: Date.now()
+  };
+}
+
+/**
+ * Emergency fallback prices (updated Sept 27, 2025)
+ */
+function getLastKnownAptosPrices(symbol) {
+  const lastKnownPrices = {
+    'APT': 4.13,    // ✅ Real APT price from CoinGecko
+    'USDC': 1.0,    // ✅ Stable
+    'USDT': 1.0     // ✅ Stable
+  };
+  
+  return lastKnownPrices[symbol.toUpperCase()] || 1.0;
+}
+
 // Middleware
 app.use(cors({
   origin: FRONTEND_URL,
@@ -19,7 +179,25 @@ app.use(express.json());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    cacheSize: priceCache.size,
+    lastCoinGeckoCall: lastCoinGeckoCall ? new Date(lastCoinGeckoCall).toISOString() : 'never'
+  });
+});
+
+// Clear price cache (for development)
+app.post('/api/clear-cache', (req, res) => {
+  const cacheSize = priceCache.size;
+  priceCache.clear();
+  console.log(`🧹 Price cache cleared (${cacheSize} entries removed)`);
+  
+  res.json({
+    success: true,
+    message: `Cache cleared (${cacheSize} entries removed)`,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Test 1inch API - get all prices for whitelisted tokens
@@ -160,32 +338,19 @@ app.get('/api/prices', async (req, res) => {
   try {
     const { chainId = '137', tokens = 'POL' } = req.query;
     
-    // Handle Aptos chain separately since it's not supported by 1inch
+    // Handle Aptos chain with REAL PRICES! 🔥
     if (chainId === '99999') {
+      console.log('🚀 Fetching REAL Aptos prices...');
+      
       const aptosTokens = tokens.split(',');
-      const aptosResult = aptosTokens.map(symbol => {
-        let price = 1.0;
-        switch (symbol.toUpperCase()) {
-          case 'APT':
-            price = 8.5;
-            break;
-          case 'USDC':
-          case 'USDT':
-            price = 1.0;
-            break;
-        }
-        
-        return {
-          symbol: symbol.toUpperCase(),
-          address: TOKEN_ADDRESSES.APTOS[symbol.toUpperCase()] || 'aptos_mock',
-          price: price,
-          timestamp: Date.now(),
-        };
-      });
-
+      const realPrices = await fetchRealAptosPrices(aptosTokens);
+      
+      console.log('✅ Real Aptos prices fetched:', realPrices.map(p => `${p.symbol}: $${p.price}`));
+      
       return res.json({
         success: true,
-        data: aptosResult,
+        data: realPrices,
+        message: '🔥 Real Aptos prices from CoinGecko API',
         timestamp: new Date().toISOString()
       });
     }

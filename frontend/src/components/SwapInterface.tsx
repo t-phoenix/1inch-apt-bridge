@@ -151,24 +151,24 @@ const SwapInterface = ({ onOpenSettings, onConnectWallet, onSwapExecute, isConne
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {/* Swap/Limit Tabs */}
-      <div className="flex mb-6">
-        <Button variant="ghost" className="text-foreground border-b-2 border-primary rounded-none">
-          Swap
-        </Button>
-        <Button variant="ghost" className="text-muted-foreground rounded-none ml-6">
-          Limit
-        </Button>
-        <div className="ml-auto flex gap-2">
+      {/* Header with title and controls */}
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-foreground font-medium text-2xl">Swap</h1>
+        <div className="flex items-center gap-2">
           <Button 
             variant="ghost" 
             size="icon" 
-            className="text-muted-foreground"
+            className="text-muted-foreground hover:text-foreground"
             onClick={handleRefresh}
           >
             <RotateCcw className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={onOpenSettings}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-muted-foreground hover:text-foreground" 
+            onClick={onOpenSettings}
+          >
             <Settings className="h-4 w-4" />
           </Button>
         </div>
@@ -195,9 +195,9 @@ const SwapInterface = ({ onOpenSettings, onConnectWallet, onSwapExecute, isConne
                 value={fromAmount}
                 onChange={(e) => handleFromAmountChange(e.target.value)}
                 placeholder="10"
-                className="text-right text-2xl font-medium bg-transparent border-0 p-0 h-auto focus-visible:ring-0 text-foreground"
-                type="number"
-                step="any"
+                className="text-right text-2xl font-medium bg-transparent border-0 p-0 h-auto focus-visible:ring-0 text-foreground [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
+                inputMode="decimal"
+                pattern="[0-9]*\.?[0-9]*"
               />
               <div className="text-xs text-muted-foreground mt-1">
                 {fromTokenPrice && fromAmount ? `~$${Math.floor(fromTokenPrice * parseFloat(fromAmount)).toLocaleString()}` : 'Enter amount'}
@@ -207,14 +207,14 @@ const SwapInterface = ({ onOpenSettings, onConnectWallet, onSwapExecute, isConne
         </div>
 
         {/* Swap Button */}
-        <div className="flex justify-center -my-2 relative z-10">
+        <div className="flex justify-center -my-4 relative z-10">
           <Button
             variant="ghost"
             size="icon"
             onClick={handleSwapTokens}
-            className="bg-secondary border border-border rounded-full hover:bg-secondary/80"
+            className="bg-card border-2 border-border rounded-full hover:bg-accent shadow-sm p-2 transition-all duration-200"
           >
-            <ArrowDown className="h-4 w-4" />
+            <ArrowDown className="h-5 w-5 text-foreground" />
           </Button>
         </div>
 
