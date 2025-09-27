@@ -1,0 +1,36 @@
+{
+  "name": "1inch-apt-bridge-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for 1inch-apt-bridge cross-chain swaps",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
+    "deploy:polygon": "hardhat run scripts/deploy.js --network polygon",
+    "deploy:testnet": "hardhat run scripts/deploy.js --network testnet",
+    "verify": "hardhat verify",
+    "coverage": "hardhat coverage",
+    "size": "hardhat size-contracts"
+  },
+  "keywords": ["cross-chain", "htlc", "1inch", "aptos", "bridge"],
+  "author": "ETHGlobal 2025 Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@openzeppelin/hardhat-upgrades": "^1.28.0",
+    "@typechain/ethers-v5": "^10.2.1",
+    "@typechain/hardhat": "^8.1.0",
+    "hardhat": "^2.19.0",
+    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solidity-coverage": "^0.8.5",
+    "typechain": "^8.3.1"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.5",
+    "ethers": "^5.7.2"
+  }
+}
