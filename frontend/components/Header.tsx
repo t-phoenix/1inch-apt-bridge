@@ -2,15 +2,17 @@
 
 import { Button } from '@/components/ui/button';
 import { useSwapStore } from '@/store/useSwapStore';
-import { HelpCircle, Settings } from 'lucide-react';
+import { HelpCircle, User } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import { AccountModal } from './AccountModal';
 import { ConnectWalletDialog } from './ConnectWalletDialog';
 import { NavLinks } from './NavLinks';
 
 export function Header() {
   const { isConnected } = useSwapStore();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
+  const [showAccountModal, setShowAccountModal] = useState(false);
 
   return (
     <header className="flex items-center justify-between px-6 py-4">
@@ -36,8 +38,11 @@ export function Header() {
           <HelpCircle size={20} />
         </button>
         
-        <button className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg">
-          <Settings size={20} />
+        <button 
+          onClick={() => setShowAccountModal(true)}
+          className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg"
+        >
+          <User size={20} />
         </button>
 
         <Button
@@ -51,6 +56,11 @@ export function Header() {
       <ConnectWalletDialog
         open={showConnectDialog}
         onOpenChange={setShowConnectDialog}
+      />
+
+      <AccountModal
+        isOpen={showAccountModal}
+        onClose={() => setShowAccountModal(false)}
       />
     </header>
   );
