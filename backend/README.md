@@ -26,21 +26,34 @@ Backend relayer service for cross-chain swaps between EVM chains (Ethereum, Poly
 npm install
 ```
 
-2. Configure environment variables:
+2. Set up NeonDB:
+   - Create a free account at [neon.tech](https://neon.tech)
+   - Create a new project
+   - Copy your database connection string
+
+3. Configure environment variables:
 ```bash
-cp .env.example .env
-# Edit .env with your configuration
+# Add to your .env file
+DATABASE_URL=postgresql://username:password@host/database?sslmode=require
+NEON_DATABASE_URL=postgresql://username:password@host/database?sslmode=require
 ```
 
-3. Start the development server:
+4. Run database migration:
+```bash
+npm run migrate
+```
+
+5. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Start the production server:
+6. Start the production server:
 ```bash
 npm start
 ```
+
+For detailed NeonDB setup instructions, see [docs/neondb-setup.md](docs/neondb-setup.md).
 
 ## API Endpoints
 
