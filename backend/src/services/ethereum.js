@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { logger } from '../utils/logger.js';
 import { Transaction } from '../models/Transaction.js';
-import HTLC_ABI from '../contracts/HTLCEscrow.json' assert { type: 'json' };
+import HTLC_ABI from '../contracts/HTLCEscrow.json' with { type: 'json' };
 
 export class EthereumService {
   constructor() {

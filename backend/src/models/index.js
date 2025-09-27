@@ -4,7 +4,7 @@ export { Escrow } from './Escrow.js';
 export { Transaction } from './Transaction.js';
 
 // Define model associations
-export function setupModelAssociations() {
+export async function setupModelAssociations() {
   const { Order } = await import('./Order.js');
   const { Escrow } = await import('./Escrow.js');
   const { Transaction } = await import('./Transaction.js');
