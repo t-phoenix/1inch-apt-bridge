@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Wallet, Smartphone, Globe, Shield } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Globe, Shield, Smartphone, Wallet } from "lucide-react";
 
 interface WalletConnectionModalProps {
   open: boolean;
@@ -44,11 +44,8 @@ const WalletConnectionModal = ({ open, onOpenChange, onWalletConnect }: WalletCo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border border-border max-w-md">
-        <DialogHeader className="flex-row items-center justify-between space-y-0 pb-4">
+        <DialogHeader className="pb-4">
           <DialogTitle className="text-foreground text-xl font-medium">Connect a wallet</DialogTitle>
-          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-            <X className="h-5 w-5" />
-          </Button>
         </DialogHeader>
 
         <div className="space-y-3">

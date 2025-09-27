@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Copy, ExternalLink } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import TokenIcon from "./TokenIcon";
 
 interface NavigationProps {
@@ -12,22 +12,14 @@ interface NavigationProps {
 
 const Navigation = ({ onConnectWallet, onAccountClick, isConnected, walletAddress, balance }: NavigationProps) => {
   return (
-    <nav className="flex items-center justify-between px-6 py-4 bg-card/50 backdrop-blur-sm border-b border-border">
-      {/* Logo and Navigation */}
-      <div className="flex items-center gap-8">
+    <nav className="flex items-center justify-between px-6 py-2 bg-card/50 backdrop-blur-sm border-b border-border">
+      {/* Logo */}
+      <div className="flex items-center">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">1</span>
+          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-base">1</span>
           </div>
-          <span className="text-foreground font-semibold text-xl">inch</span>
-        </div>
-        
-        <div className="hidden md:flex items-center gap-6 text-muted-foreground">
-          <button className="hover:text-foreground transition-colors">Trade</button>
-          <button className="hover:text-foreground transition-colors">Portfolio</button>
-          <button className="hover:text-foreground transition-colors">DAO</button>
-          <button className="hover:text-foreground transition-colors">Buy Crypto</button>
-          <button className="hover:text-foreground transition-colors">Card</button>
+          <span className="text-foreground font-semibold text-lg">inch</span>
         </div>
       </div>
 
