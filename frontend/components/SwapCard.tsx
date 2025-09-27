@@ -296,10 +296,11 @@ export function SwapCard() {
                         size="icon"
                         className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border border-blue-500/30"
                       >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M8 3l4 8 5-1"/>
-                          <path d="M12 21V3"/>
-                          <path d="M16 21l-4-8-5 1"/>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m7 16 4 4 4-4"/>
+                          <path d="m11 12 0 8"/>
+                          <path d="m7 8 4-4 4 4"/>
+                          <path d="m11 4 0 8"/>
                         </svg>
                       </Button>
                     </div>
