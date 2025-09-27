@@ -92,7 +92,7 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
     }
 
     // Request account access
-    const accounts = await ethereum.request({
+    const accounts = await (ethereum as any).request({
       method: 'eth_requestAccounts',
     });
 
@@ -101,7 +101,7 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
     }
 
     // Get chain ID
-    const chainId = await ethereum.request({ method: 'eth_chainId' });
+    const chainId = await (ethereum as any).request({ method: 'eth_chainId' });
     
     // Create provider
     const provider = new ethers.BrowserProvider(window.ethereum);
@@ -191,7 +191,7 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
     }
 
     try {
-      await window.ethereum.request({
+      await (window.ethereum as any).request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${targetChainId.toString(16)}` }],
       });
@@ -200,7 +200,7 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
       if (switchError.code === 4902) {
         const network = SUPPORTED_NETWORKS[targetChainId as keyof typeof SUPPORTED_NETWORKS];
         if (network) {
-          await window.ethereum.request({
+          await (window.ethereum as any).request({
             method: 'wallet_addEthereumChain',
             params: [
               {
@@ -269,7 +269,7 @@ export const WalletProvider = ({ children }: WalletProviderProps) => {
           if (type === 'metamask') {
             const ethereum = await detectEthereumProvider();
             if (ethereum) {
-              const accounts = await ethereum.request({ method: 'eth_accounts' });
+              const accounts = await (ethereum as any).request({ method: 'eth_accounts' });
               if (accounts && accounts.length > 0) {
                 await connectWallet(type);
               } else {

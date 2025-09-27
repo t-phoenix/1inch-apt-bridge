@@ -60,10 +60,15 @@ export const PetraWalletProvider: React.FC<{ children: React.ReactNode }> = ({ c
           setPetraWallet(wallet);
           
           // Check if already connected
-          const isAlreadyConnected = await wallet.isConnected();
-          if (isAlreadyConnected) {
-            console.log('🔄 Auto-reconnecting to Petra...');
-            await handleAutoReconnect(wallet);
+          try {
+            const accountInfo = await wallet.account();
+            if (accountInfo) {
+              console.log('🔄 Auto-reconnecting to Petra...');
+              await handleAutoReconnect(wallet);
+            }
+          } catch (error) {
+            // Wallet not connected, which is fine
+            console.log('💤 Petra not previously connected');
           }
         } else {
           console.log('❌ Petra wallet not found');

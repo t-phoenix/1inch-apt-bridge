@@ -1,7 +1,6 @@
 import AccountModal from "@/components/AccountModal";
 import DualWalletModal from "@/components/DualWalletModal";
 import Navigation from "@/components/Navigation";
-import PriceTestPanel from "@/components/PriceTestPanel";
 import SettingsModal from "@/components/SettingsModal";
 import SwapInterface from "@/components/SwapInterface";
 import SwapSuccessModal from "@/components/SwapSuccessModal";
@@ -100,18 +99,13 @@ const Index = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-start min-h-[80vh] gap-8">
+        <div className="flex justify-center items-start min-h-[80vh]">
           <SwapInterface 
             onOpenSettings={() => setShowSettings(true)}
             onConnectWallet={handleConnectWallet}
             onSwapExecute={handleSwapExecute}
             isConnected={isAnyWalletConnected}
           />
-          
-          {/* 🔥 PRICE TESTING PANEL - Temporary for verification */}
-          <div className="hidden lg:block">
-            <PriceTestPanel />
-          </div>
         </div>
       </main>
 
