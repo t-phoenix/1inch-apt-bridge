@@ -119,15 +119,15 @@ module bridge::aptos_manager {
             aptos_hash::keccak256(
                 bcs::to_bytes(
                     &vector[
-                        bcs::to_bytes(&depositAssetMetadata), bcs::to_bytes(
-                            &deposit_amount
-                        ), bcs::to_bytes(&min_incentive_fee), bcs::to_bytes(&salt), bcs::to_bytes(
-                            &hashlock
-                        ), bcs::to_bytes(&withDrawPeriod), bcs::to_bytes(
-                            &publicWithDrawPeriod
-                        ), bcs::to_bytes(&cancelPeriod), bcs::to_bytes(
-                            &publicCancelPeriod
-                        )
+                        bcs::to_bytes(&depositAssetMetadata), 
+                        bcs::to_bytes(&deposit_amount), 
+                        bcs::to_bytes(&min_incentive_fee), 
+                        bcs::to_bytes(&salt), 
+                        bcs::to_bytes(&hashlock), 
+                        bcs::to_bytes(&withDrawPeriod), 
+                        bcs::to_bytes(&publicWithDrawPeriod), 
+                        bcs::to_bytes(&cancelPeriod), 
+                        bcs::to_bytes(&publicCancelPeriod)
                     ]
                 )
             );
