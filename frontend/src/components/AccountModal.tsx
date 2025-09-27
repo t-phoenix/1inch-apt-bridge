@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { usePetraWallet } from "@/contexts/PetraWalletContext";
 import { useWallet } from "@/contexts/WalletContext";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowUpRight, Copy, ExternalLink, LogOut, Plus, Send, TrendingDown } from "lucide-react";
@@ -22,8 +23,34 @@ interface Transaction {
 }
 
 const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
-  const { account, balance, walletType, chainId, disconnectWallet, provider } = useWallet();
+  // Get both wallet states
+  const { 
+    account: metaMaskAccount, 
+    balance: metaMaskBalance, 
+    walletType: metaMaskType, 
+    chainId, 
+    disconnectWallet: disconnectMetaMask, 
+    provider,
+    isConnected: isMetaMaskConnected
+  } = useWallet();
+  
+  const { 
+    account: petraAccount, 
+    formattedBalance: petraBalance, 
+    network: petraNetwork, 
+    disconnectWallet: disconnectPetra,
+    isConnected: isPetraConnected
+  } = usePetraWallet();
+  
   const { toast } = useToast();
+  
+  // Determine active wallet
+  const isMetaMaskActive = isMetaMaskConnected;
+  const isPetraActive = isPetraConnected;
+  
+  const activeAccount = isMetaMaskActive ? metaMaskAccount : isPetraActive ? petraAccount : null;
+  const activeBalance = isMetaMaskActive ? metaMaskBalance : isPetraActive ? petraBalance : null;
+  const activeWalletType = isMetaMaskActive ? 'MetaMask' : isPetraActive ? 'Petra' : null;
   
   const transactions: Transaction[] = [
     {
@@ -55,11 +82,18 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
   ];
 
   const handleCopyAddress = async () => {
-    if (account && provider) {
+    if (activeAccount) {
       try {
-        const signer = await provider.getSigner();
-        const address = await signer.getAddress();
-        await navigator.clipboard.writeText(address);
+        let addressToCopy = activeAccount;
+        
+        // For MetaMask, get the full address from provider
+        if (isMetaMaskActive && provider) {
+          const signer = await provider.getSigner();
+          addressToCopy = await signer.getAddress();
+        }
+        // For Petra, activeAccount already contains the full address
+        
+        await navigator.clipboard.writeText(addressToCopy);
         toast({
           title: "Address Copied",
           description: "Wallet address copied to clipboard",
@@ -70,21 +104,45 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
     }
   };
 
-  const handleDisconnect = () => {
-    disconnectWallet();
-    onOpenChange(false);
-    toast({
-      title: "Wallet Disconnected",
-      description: "Your wallet has been disconnected",
-    });
+  const handleDisconnect = async () => {
+    try {
+      // Disconnect the appropriate wallet
+      if (isMetaMaskActive) {
+        await disconnectMetaMask();
+        toast({
+          title: "MetaMask Disconnected",
+          description: "Your MetaMask wallet has been disconnected",
+        });
+      } else if (isPetraActive) {
+        await disconnectPetra();
+        toast({
+          title: "Petra Wallet Disconnected", 
+          description: "Your Petra wallet has been disconnected",
+        });
+      }
+      
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Disconnect failed:', error);
+      toast({
+        title: "Disconnect Error",
+        description: "Failed to disconnect wallet completely",
+        variant: "destructive"
+      });
+    }
   };
 
   const getChainName = () => {
-    switch (chainId) {
-      case 1: return "Ethereum";
-      case 137: return "Polygon";
-      default: return `Chain ${chainId}`;
+    if (isMetaMaskActive) {
+      switch (chainId) {
+        case 1: return "Ethereum";
+        case 137: return "Polygon";
+        default: return `Chain ${chainId}`;
+      }
+    } else if (isPetraActive) {
+      return petraNetwork || "Aptos";
     }
+    return "Unknown";
   };
 
   return (
@@ -108,16 +166,21 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
           <div className="p-6 bg-gradient-to-br from-primary/20 to-purple-500/20">
             {/* Wallet Address */}
             <div className="flex items-center gap-2 bg-black/20 rounded-lg px-3 py-2 mb-6">
-              <TokenIcon symbol="POL" size="sm" />
+              <TokenIcon symbol={isMetaMaskActive ? "POL" : "APT"} size="sm" />
               <div className="flex-1">
-                <div className="text-foreground font-medium">{account}</div>
-                <div className="text-muted-foreground text-xs">{walletType} • {getChainName()}</div>
+                <div className="text-foreground font-medium">
+                  {activeAccount || 'Not connected'}
+                </div>
+                <div className="text-muted-foreground text-xs">
+                  {activeWalletType} • {getChainName()}
+                </div>
               </div>
               <Button 
                 variant="ghost" 
                 size="icon" 
                 className="h-6 w-6"
                 onClick={handleCopyAddress}
+                disabled={!activeAccount}
               >
                 <Copy className="h-3 w-3" />
               </Button>
@@ -125,7 +188,15 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
                 variant="ghost" 
                 size="icon" 
                 className="h-6 w-6"
-                onClick={() => window.open(`https://etherscan.io/address/${account}`, '_blank')}
+                onClick={() => {
+                  if (activeAccount) {
+                    const explorerUrl = isMetaMaskActive 
+                      ? `https://etherscan.io/address/${activeAccount}`
+                      : `https://explorer.aptoslabs.com/account/${activeAccount}`;
+                    window.open(explorerUrl, '_blank');
+                  }
+                }}
+                disabled={!activeAccount}
               >
                 <ExternalLink className="h-3 w-3" />
               </Button>
@@ -134,7 +205,10 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
             {/* Balance */}
             <div className="text-center mb-6">
               <div className="text-4xl font-light text-foreground mb-4">
-                {balance ? `${balance} ETH` : '$0.00'}
+                {activeBalance 
+                  ? `${activeBalance} ${isMetaMaskActive ? 'ETH' : 'APT'}` 
+                  : '$0.00'
+                }
               </div>
               
               {/* Action Buttons */}

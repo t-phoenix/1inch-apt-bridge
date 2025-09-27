@@ -1,10 +1,12 @@
 import AccountModal from "@/components/AccountModal";
+import DualWalletModal from "@/components/DualWalletModal";
 import Navigation from "@/components/Navigation";
+import PriceTestPanel from "@/components/PriceTestPanel";
 import SettingsModal from "@/components/SettingsModal";
 import SwapInterface from "@/components/SwapInterface";
 import SwapSuccessModal from "@/components/SwapSuccessModal";
 import TransactionDetailModal from "@/components/TransactionDetailModal";
-import WalletConnectionModal from "@/components/WalletConnectionModal";
+import { usePetraWallet } from "@/contexts/PetraWalletContext";
 import { useWallet } from "@/contexts/WalletContext";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -23,35 +25,27 @@ const Index = () => {
   });
 
   const { toast } = useToast();
+  
+  // Get both wallet states
   const { 
-    isConnected, 
-    account, 
-    balance, 
-    connectWallet, 
-    error,
-    isConnecting 
+    isConnected: isMetaMaskConnected, 
+    account: metaMaskAccount, 
+    balance: metaMaskBalance,
+    error: metaMaskError 
   } = useWallet();
+  
+  const { 
+    isConnected: isPetraConnected, 
+    account: petraAccount, 
+    formattedBalance: petraBalance,
+    error: petraError 
+  } = usePetraWallet();
+
+  // Check if any wallet is connected
+  const isAnyWalletConnected = isMetaMaskConnected || isPetraConnected;
 
   const handleConnectWallet = () => {
     setShowWalletConnection(true);
-  };
-
-  const handleWalletConnect = async (walletType: string) => {
-    try {
-      await connectWallet(walletType);
-      setShowWalletConnection(false);
-      
-      toast({
-        title: "Wallet Connected",
-        description: `Successfully connected to ${walletType}`,
-      });
-    } catch (error: any) {
-      toast({
-        title: "Connection Failed",
-        description: error.message || "Failed to connect wallet",
-        variant: "destructive",
-      });
-    }
   };
 
   const handleAccountClick = () => {
@@ -59,10 +53,31 @@ const Index = () => {
   };
 
   const handleSwapExecute = (fromToken: string, toToken: string, fromAmount: string, toAmount: string) => {
-    if (!isConnected) {
+    if (!isAnyWalletConnected) {
       toast({
-        title: "Wallet Required",
+        title: "🔗 Wallet Required",
         description: "Please connect your wallet to perform swaps",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Determine which wallet should handle the swap based on tokens
+    const isAptosSwap = fromToken === 'APT' || toToken === 'APT';
+    
+    if (isAptosSwap && !isPetraConnected) {
+      toast({
+        title: "🅰️ Petra Wallet Required",
+        description: "Please connect Petra wallet for Aptos swaps",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!isAptosSwap && !isMetaMaskConnected) {
+      toast({
+        title: "🦊 MetaMask Required", 
+        description: "Please connect MetaMask for Ethereum/Polygon swaps",
         variant: "destructive",
       });
       return;
@@ -70,6 +85,11 @@ const Index = () => {
 
     setSwapDetails({ fromToken, toToken, fromAmount, toAmount });
     setShowSwapSuccess(true);
+    
+    toast({
+      title: "🚀 Swap Executed!",
+      description: `Swapped ${fromAmount} ${fromToken} → ${toAmount} ${toToken}`,
+    });
   };
 
   return (
@@ -77,19 +97,21 @@ const Index = () => {
       <Navigation 
         onConnectWallet={handleConnectWallet}
         onAccountClick={handleAccountClick}
-        isConnected={isConnected}
-        walletAddress={account}
-        balance={balance ? `${balance} ETH` : undefined}
       />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-start min-h-[80vh]">
+        <div className="flex justify-center items-start min-h-[80vh] gap-8">
           <SwapInterface 
             onOpenSettings={() => setShowSettings(true)}
             onConnectWallet={handleConnectWallet}
             onSwapExecute={handleSwapExecute}
-            isConnected={isConnected}
+            isConnected={isAnyWalletConnected}
           />
+          
+          {/* 🔥 PRICE TESTING PANEL - Temporary for verification */}
+          <div className="hidden lg:block">
+            <PriceTestPanel />
+          </div>
         </div>
       </main>
 
@@ -108,10 +130,10 @@ const Index = () => {
         onOpenChange={setShowTransactionDetail}
       />
 
-      <WalletConnectionModal
-        open={showWalletConnection}
-        onOpenChange={setShowWalletConnection}
-        onWalletConnect={handleWalletConnect}
+      {/* 🔥 NEW DUAL WALLET MODAL */}
+      <DualWalletModal
+        isOpen={showWalletConnection}
+        onClose={() => setShowWalletConnection(false)}
       />
 
       <SwapSuccessModal
