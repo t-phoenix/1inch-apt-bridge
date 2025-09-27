@@ -1,0 +1,18 @@
+[package]
+name = "aptos-contracts"
+version = "1.0.0"
+authors = []
+
+[addresses]
+bridge = "0x2cc727e8ac33cb64e3270c7130bfa5e8171f34ac5e5fe4c2b595d08793a57a98"
+resolver = "0xc1200914d9f040ea0e28cbdd537964dacf198750f2f1fab3fd16597fae2ce4db"
+usdc = "0x9fcbe96ad30bcd4457969a9ec7667af032fb62a613ce4b2628771a45382380be"
+
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-framework.git"
+rev = "mainnet"
+subdir = "aptos-framework"
+
+[dev-dependencies]
