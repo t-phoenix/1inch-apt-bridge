@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ArrowUpRight, Copy, ExternalLink, Plus, Send, TrendingDown } from "lucide-react";
+import { useWallet } from "@/contexts/WalletContext";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowUpRight, Copy, ExternalLink, LogOut, Plus, Send, TrendingDown } from "lucide-react";
 import TokenIcon from "./TokenIcon";
 
 interface AccountModalProps {
@@ -20,8 +22,8 @@ interface Transaction {
 }
 
 const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
-  const walletAddress = "0x4e39...Fc80";
-  const balance = "$1.39";
+  const { account, balance, walletType, chainId, disconnectWallet, provider } = useWallet();
+  const { toast } = useToast();
   
   const transactions: Transaction[] = [
     {
@@ -52,12 +54,53 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
     }
   ];
 
+  const handleCopyAddress = async () => {
+    if (account && provider) {
+      try {
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        await navigator.clipboard.writeText(address);
+        toast({
+          title: "Address Copied",
+          description: "Wallet address copied to clipboard",
+        });
+      } catch (error) {
+        console.error('Failed to copy address:', error);
+      }
+    }
+  };
+
+  const handleDisconnect = () => {
+    disconnectWallet();
+    onOpenChange(false);
+    toast({
+      title: "Wallet Disconnected",
+      description: "Your wallet has been disconnected",
+    });
+  };
+
+  const getChainName = () => {
+    switch (chainId) {
+      case 1: return "Ethereum";
+      case 137: return "Polygon";
+      default: return `Chain ${chainId}`;
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border border-border max-w-md p-0 gap-0 max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-foreground text-xl font-medium">Account</h2>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={handleDisconnect}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -66,18 +109,33 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
             {/* Wallet Address */}
             <div className="flex items-center gap-2 bg-black/20 rounded-lg px-3 py-2 mb-6">
               <TokenIcon symbol="POL" size="sm" />
-              <span className="text-foreground font-medium">{walletAddress}</span>
-              <Button variant="ghost" size="icon" className="ml-auto h-6 w-6">
+              <div className="flex-1">
+                <div className="text-foreground font-medium">{account}</div>
+                <div className="text-muted-foreground text-xs">{walletType} • {getChainName()}</div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6"
+                onClick={handleCopyAddress}
+              >
                 <Copy className="h-3 w-3" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-6 w-6">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6"
+                onClick={() => window.open(`https://etherscan.io/address/${account}`, '_blank')}
+              >
                 <ExternalLink className="h-3 w-3" />
               </Button>
             </div>
 
             {/* Balance */}
             <div className="text-center mb-6">
-              <div className="text-4xl font-light text-foreground mb-4">{balance}</div>
+              <div className="text-4xl font-light text-foreground mb-4">
+                {balance ? `${balance} ETH` : '$0.00'}
+              </div>
               
               {/* Action Buttons */}
               <div className="flex gap-2">
@@ -109,57 +167,52 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
 
           {/* Transaction History */}
   <div className="p-6 overflow-y-auto max-h-80" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            <h3 className="text-foreground font-medium mb-4">Today</h3>
+            <h3 className="text-foreground font-medium mb-4">Recent Activity</h3>
             
-            {/* Today's Transaction */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex -space-x-2">
-                <TokenIcon symbol="POL" size="sm" />
-                <TokenIcon symbol="APT" size="sm" />
+            {/* Show message if no transactions */}
+            {transactions.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-muted-foreground">No transactions yet</div>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <ArrowUpRight className="h-3 w-3 text-muted-foreground rotate-45" />
-                  <span className="text-foreground font-medium">Swap</span>
-                </div>
-                <div className="text-muted-foreground text-sm">POL → APT</div>
-              </div>
-              <div className="text-right">
-                <div className="text-success font-medium">+0.253 APT</div>
-                <div className="text-muted-foreground text-sm">-0.1 POL</div>
-              </div>
-            </div>
-
-            <h3 className="text-foreground font-medium mb-4">July 17</h3>
-            
-            {/* July Transactions */}
-            {transactions.slice(1).map((tx, index) => (
-              <div key={index} className="flex items-center gap-3 mb-4">
-                <TokenIcon symbol="POL" size="sm" />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Send className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-foreground font-medium">Send</span>
+            ) : (
+              <>
+                {/* Today's Transaction */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="flex -space-x-2">
+                    <TokenIcon symbol="POL" size="sm" />
+                    <TokenIcon symbol="APT" size="sm" />
                   </div>
-                  <div className="text-muted-foreground text-sm">Polygon</div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <ArrowUpRight className="h-3 w-3 text-muted-foreground rotate-45" />
+                      <span className="text-foreground font-medium">Swap</span>
+                    </div>
+                    <div className="text-muted-foreground text-sm">POL → APT</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-success font-medium">+0.253 APT</div>
+                    <div className="text-muted-foreground text-sm">-0.1 POL</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-foreground font-medium">{tx.amount}</div>
-                </div>
-              </div>
-            ))}
 
-            {/* Question Transaction */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <span className="text-purple-400 font-medium">?</span>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-foreground font-medium">Transaction</span>
-                </div>
-              </div>
-            </div>
+                {/* Other Transactions */}
+                {transactions.slice(1).map((tx, index) => (
+                  <div key={index} className="flex items-center gap-3 mb-4">
+                    <TokenIcon symbol="POL" size="sm" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <Send className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-foreground font-medium">Send</span>
+                      </div>
+                      <div className="text-muted-foreground text-sm">Polygon</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-foreground font-medium">{tx.amount}</div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         </div>
       </DialogContent>

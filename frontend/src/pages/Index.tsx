@@ -1,11 +1,13 @@
-import { useState } from "react";
-import Navigation from "@/components/Navigation";
-import SwapInterface from "@/components/SwapInterface";
-import SettingsModal from "@/components/SettingsModal";
 import AccountModal from "@/components/AccountModal";
+import Navigation from "@/components/Navigation";
+import SettingsModal from "@/components/SettingsModal";
+import SwapInterface from "@/components/SwapInterface";
+import SwapSuccessModal from "@/components/SwapSuccessModal";
 import TransactionDetailModal from "@/components/TransactionDetailModal";
 import WalletConnectionModal from "@/components/WalletConnectionModal";
-import SwapSuccessModal from "@/components/SwapSuccessModal";
+import { useWallet } from "@/contexts/WalletContext";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const Index = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -13,8 +15,6 @@ const Index = () => {
   const [showTransactionDetail, setShowTransactionDetail] = useState(false);
   const [showWalletConnection, setShowWalletConnection] = useState(false);
   const [showSwapSuccess, setShowSwapSuccess] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("");
   const [swapDetails, setSwapDetails] = useState({
     fromToken: "",
     toToken: "",
@@ -22,15 +22,36 @@ const Index = () => {
     toAmount: ""
   });
 
+  const { toast } = useToast();
+  const { 
+    isConnected, 
+    account, 
+    balance, 
+    connectWallet, 
+    error,
+    isConnecting 
+  } = useWallet();
+
   const handleConnectWallet = () => {
     setShowWalletConnection(true);
   };
 
-  const handleWalletConnect = (walletType: string) => {
-    // Simulate wallet connection
-    setIsConnected(true);
-    setWalletAddress("0x4e39...Fc80");
-    setShowWalletConnection(false);
+  const handleWalletConnect = async (walletType: string) => {
+    try {
+      await connectWallet(walletType);
+      setShowWalletConnection(false);
+      
+      toast({
+        title: "Wallet Connected",
+        description: `Successfully connected to ${walletType}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Connection Failed",
+        description: error.message || "Failed to connect wallet",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAccountClick = () => {
@@ -38,6 +59,15 @@ const Index = () => {
   };
 
   const handleSwapExecute = (fromToken: string, toToken: string, fromAmount: string, toAmount: string) => {
+    if (!isConnected) {
+      toast({
+        title: "Wallet Required",
+        description: "Please connect your wallet to perform swaps",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSwapDetails({ fromToken, toToken, fromAmount, toAmount });
     setShowSwapSuccess(true);
   };
@@ -48,8 +78,8 @@ const Index = () => {
         onConnectWallet={handleConnectWallet}
         onAccountClick={handleAccountClick}
         isConnected={isConnected}
-        walletAddress={walletAddress}
-        balance="$1.39"
+        walletAddress={account}
+        balance={balance ? `${balance} ETH` : undefined}
       />
       
       <main className="container mx-auto px-4 py-8">
