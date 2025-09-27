@@ -15,11 +15,6 @@ interface IResolver {
     ) external view returns (bytes32);
 }
 
-/**
-Basic Mock Resolver for testing FusionPlus Escrow Creation. 
-Note that this is a simply a test implementation with utility functions to make creation of
-orders easier.
- */
 contract Resolver is Ownable {
     using TakerTraitsLib for TakerTraits;
     using ExtensionsLib for bytes;
