@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* DeFi Dark Theme Colors */
+    --background: 218 23% 11%; /* Deep dark blue #1a1b23 */
+    --foreground: 220 15% 85%; /* Light text */
+
+    --card: 220 20% 13%; /* Dark card background */
+    --card-foreground: 220 15% 85%;
+
+    --popover: 220 20% 13%;
+    --popover-foreground: 220 15% 85%;
+
+    /* Primary cyan/blue accent */
+    --primary: 195 100% 50%; /* Cyan #00D2FF */
+    --primary-foreground: 220 20% 13%;
+
+    /* Secondary darker elements */
+    --secondary: 220 25% 18%; /* Darker elements #2d2f3a */
+    --secondary-foreground: 220 15% 85%;
+
+    --muted: 220 25% 18%;
+    --muted-foreground: 220 10% 55%; /* Muted text */
+
+    --accent: 220 25% 18%;
+    --accent-foreground: 220 15% 85%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 220 15% 85%;
+
+    --border: 220 25% 18%; /* Subtle borders */
+    --input: 220 25% 18%;
+    --ring: 195 100% 50%;
+
+    --radius: 0.5rem;
+
+    /* Custom DeFi gradients and effects */
+    --gradient-primary: linear-gradient(135deg, hsl(195 100% 50%) 0%, hsl(240 80% 60%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(220 20% 13%) 0%, hsl(220 25% 15%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(120 50% 50%) 0%, hsl(140 60% 40%) 100%);
+    
+    /* Shadows and glows */
+    --shadow-primary: 0 0 20px hsl(195 100% 50% / 0.3);
+    --shadow-card: 0 4px 20px hsl(220 25% 5% / 0.4);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(218 25% 8%) 100%);
+    min-height: 100vh;
+  }
+
+  /* Custom utility classes */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  .shadow-primary {
+    box-shadow: var(--shadow-primary);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+}
