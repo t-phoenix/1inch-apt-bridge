@@ -10,18 +10,27 @@ const TokenIcon = ({ symbol, size = "md" }: TokenIconProps) => {
     lg: "w-12 h-12"
   };
 
+  // Use SVGs for POL and APT
+  if (symbol.toUpperCase() === "POL") {
+    return (
+      <img src="/polygon.svg" alt="Polygon" className={`${sizeClasses[size]} rounded-full`} />
+    );
+  }
+  if (symbol.toUpperCase() === "APT") {
+    return (
+      <img src="/aptos.svg" alt="Aptos" className={`${sizeClasses[size]} rounded-full`} />
+    );
+  }
+
+  // Fallback to colored initials for other tokens
   const getTokenColor = (symbol: string) => {
     switch (symbol.toUpperCase()) {
-      case "APT":
-        return "bg-gradient-to-br from-black to-gray-800";
       case "ETH":
         return "bg-gradient-to-br from-blue-400 to-blue-600";
       case "USDC":
         return "bg-gradient-to-br from-blue-500 to-blue-700";
       case "USDT":
         return "bg-gradient-to-br from-green-400 to-green-600";
-      case "POL":
-        return "bg-gradient-to-br from-purple-400 to-purple-600";
       default:
         return "bg-gradient-to-br from-gray-400 to-gray-600";
     }
@@ -29,16 +38,12 @@ const TokenIcon = ({ symbol, size = "md" }: TokenIconProps) => {
 
   const getTokenInitial = (symbol: string) => {
     switch (symbol.toUpperCase()) {
-      case "APT":
-        return "A";
       case "ETH":
         return "Ξ";
       case "USDC":
         return "C";
       case "USDT":
         return "T";
-      case "POL":
-        return "P";
       default:
         return symbol.charAt(0);
     }

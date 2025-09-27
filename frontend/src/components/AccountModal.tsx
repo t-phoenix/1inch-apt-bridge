@@ -1,6 +1,6 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Copy, ExternalLink, Plus, TrendingDown, Send, ArrowUpRight } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ArrowUpRight, Copy, ExternalLink, Plus, Send, TrendingDown } from "lucide-react";
 import TokenIcon from "./TokenIcon";
 
 interface AccountModalProps {
@@ -58,9 +58,6 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-foreground text-xl font-medium">Account</h2>
-          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
-            <X className="h-5 w-5" />
-          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
@@ -111,7 +108,7 @@ const AccountModal = ({ open, onOpenChange }: AccountModalProps) => {
           </div>
 
           {/* Transaction History */}
-          <div className="p-6">
+  <div className="p-6 overflow-y-auto max-h-80" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <h3 className="text-foreground font-medium mb-4">Today</h3>
             
             {/* Today's Transaction */}
