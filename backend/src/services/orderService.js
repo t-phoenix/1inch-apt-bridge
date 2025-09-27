@@ -131,3 +131,16 @@ export class OrderService {
     }
   }
 }
+
+// Create a singleton instance
+const orderService = new OrderService();
+
+// Export individual functions for easier importing
+export const createOrder = (orderData) => orderService.createOrder(orderData);
+export const getOrder = (orderId) => orderService.getOrder(orderId);
+export const updateOrder = (orderId, updates) => orderService.updateOrder(orderId, updates);
+export const updateOrderStatus = (orderId, statusData) => orderService.updateOrderStatus(orderId, statusData);
+export const deleteOrder = (orderId) => orderService.deleteOrder(orderId);
+export const getAllOrders = (options) => orderService.getAllOrders(options);
+export const getOrdersByMaker = (makerAddress, options) => orderService.getOrdersByMaker(makerAddress, options);
+export const getOrdersByTaker = (takerAddress, options) => orderService.getOrdersByTaker(takerAddress, options);

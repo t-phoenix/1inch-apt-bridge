@@ -6,8 +6,7 @@ import { hexToBytes, bytesToHex } from '../utils/crypto.js';
 export class AptosService {
   constructor() {
     const config = new AptosConfig({
-      network: Network.MAINNET,
-      fullnode: process.env.APTOS_NODE_URL
+      network: Network.TESTNET,
     });
     this.client = new Aptos(config);
     

@@ -1,4 +1,7 @@
 import { logger } from '../utils/logger.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const databaseConfig = {
   // NeonDB connection configuration

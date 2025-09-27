@@ -52,7 +52,7 @@ export async function initializeDatabase() {
     await import('../models/Transaction.js');
     
     // Setup model associations
-    setupModelAssociations();
+    await setupModelAssociations();
     
     // Sync database (create tables if they don't exist)
     await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
