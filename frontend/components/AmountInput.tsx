@@ -33,18 +33,18 @@ export function AmountInput({
   };
 
   return (
-    <div className="flex flex-col items-end space-y-1">
+    <div className="flex flex-col items-end space-y-2">
       <Input
         type="text"
         value={value}
         onChange={handleInputChange}
         placeholder={placeholder}
         readOnly={readOnly}
-        className="text-3xl font-semibold bg-transparent border-none p-0 h-auto text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 text-right w-full"
+        className="text-4xl font-bold bg-transparent border-none p-0 h-auto text-white placeholder:text-slate-400/60 focus-visible:ring-0 focus-visible:ring-offset-0 text-right w-full tracking-tight"
       />
       {showUsdValue && numericValue > 0 && (
-        <div className="text-sm text-gray-400">
-          ~{formatCurrency(usdValue)}
+        <div className="text-base text-slate-300 font-medium">
+          ≈ {formatCurrency(usdValue)}
         </div>
       )}
     </div>

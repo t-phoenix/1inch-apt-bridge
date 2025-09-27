@@ -9,24 +9,44 @@ import { AccountModal } from './AccountModal';
 import { ConnectWalletDialog } from './ConnectWalletDialog';
 import { NavLinks } from './NavLinks';
 
-export function Header() {
+interface HeaderProps {
+  isAccountModalOpen?: boolean;
+  setIsAccountModalOpen?: (open: boolean) => void;
+}
+
+export function Header({ isAccountModalOpen, setIsAccountModalOpen }: HeaderProps) {
   const { isConnected } = useSwapStore();
   const [showConnectDialog, setShowConnectDialog] = useState(false);
   const [showAccountModal, setShowAccountModal] = useState(false);
 
+  const handleAccountClick = () => {
+    const newState = !showAccountModal;
+    setShowAccountModal(newState);
+    if (setIsAccountModalOpen) {
+      setIsAccountModalOpen(newState);
+    }
+  };
+
+  const handleAccountClose = () => {
+    setShowAccountModal(false);
+    if (setIsAccountModalOpen) {
+      setIsAccountModalOpen(false);
+    }
+  };
+
   return (
-    <header className="flex items-center justify-between px-6 py-4">
+    <header className="flex items-center justify-between px-8 py-6 backdrop-blur-xl bg-black/20 border-b border-gray-700/50">
       {/* Logo and Navigation */}
-      <div className="flex items-center space-x-8">
-        <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-12">
+        <div className="flex items-center space-x-4">
           <Image
             src="/icons/1inch-logo.png"
             alt="1inch"
-            width={32}
-            height={32}
-            className="rounded-full"
+            width={36}
+            height={36}
+            className="rounded-full ring-2 ring-blue-500/30"
           />
-          <span className="text-xl font-bold text-white">1inch</span>
+          <span className="text-2xl font-bold text-white tracking-tight">1inch</span>
         </div>
         
         <NavLinks />
@@ -34,22 +54,22 @@ export function Header() {
 
       {/* Actions */}
       <div className="flex items-center space-x-4">
-        <button className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg">
-          <HelpCircle size={20} />
+        <button className="p-3 text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all duration-300 rounded-2xl backdrop-blur-sm">
+          <HelpCircle size={22} />
         </button>
         
         <button 
-          onClick={() => setShowAccountModal(true)}
-          className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg"
+          onClick={handleAccountClick}
+          className="p-3 text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all duration-300 rounded-2xl backdrop-blur-sm"
         >
-          <User size={20} />
+          <User size={22} />
         </button>
 
         <Button
           onClick={() => setShowConnectDialog(true)}
-          className="bg-gradient-to-r from-[#1D90F5] to-[#00D4FF] hover:from-[#0D7FE5] hover:to-[#00C4EF] text-white font-semibold px-6 py-2 rounded-xl"
+          className="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold px-8 py-3 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border border-blue-500/30"
         >
-          {isConnected ? 'Connected (mock)' : 'Connect wallet'}
+          {isConnected ? 'Connected' : 'Connect Wallet'}
         </Button>
       </div>
 
@@ -60,7 +80,7 @@ export function Header() {
 
       <AccountModal
         isOpen={showAccountModal}
-        onClose={() => setShowAccountModal(false)}
+        onClose={handleAccountClose}
       />
     </header>
   );

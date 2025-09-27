@@ -89,22 +89,22 @@ export function SwapCard() {
 
   return (
     <>
-      <Card className="w-full max-w-[460px] mx-auto bg-[#10151c] border border-[#1e2632] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.35)]">
-        <CardContent className="p-6">
-          {/* Header with tabs and icons */}
-          <div className="flex items-center justify-between mb-8">
+      <Card className="w-full max-w-[500px] mx-auto bg-gradient-to-br from-black/80 via-gray-900/90 to-black/80 backdrop-blur-xl border border-gray-700/50 rounded-3xl shadow-2xl shadow-black/30">
+        <CardContent className="p-10">
+          {/* Header with elegant tabs and icons */}
+          <div className="flex items-center justify-between mb-12">
             <Tabs defaultValue="swap" className="w-full">
               <div className="flex items-center justify-between">
                 <TabsList className="h-auto p-0 bg-transparent">
                   <TabsTrigger
                     value="swap"
-                    className="text-base font-medium px-0 py-2 mr-6 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-white rounded-none text-gray-400"
+                    className="text-xl font-bold px-0 py-4 mr-12 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none border-b-3 border-transparent data-[state=active]:border-blue-500 rounded-none text-gray-400 hover:text-white transition-all duration-300"
                   >
                     Swap
                   </TabsTrigger>
                   <TabsTrigger
                     value="limit"
-                    className="text-base font-medium px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-white rounded-none text-gray-400"
+                    className="text-xl font-bold px-0 py-4 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none border-b-3 border-transparent data-[state=active]:border-blue-500 rounded-none text-gray-400 hover:text-white transition-all duration-300"
                   >
                     Limit
                   </TabsTrigger>
@@ -115,24 +115,24 @@ export function SwapCard() {
                     variant="ghost"
                     size="icon"
                     onClick={handleRefresh}
-                    className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-transparent"
+                    className="h-12 w-12 p-0 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
                     disabled={isRefreshing}
                   >
-                    <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+                    <RefreshCw size={20} className={isRefreshing ? 'animate-spin' : ''} />
                   </Button>
                   
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setShowSettings(!showSettings)}
-                    className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-transparent"
+                    className="h-12 w-12 p-0 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-2xl transition-all duration-300 backdrop-blur-sm"
                   >
-                    <Settings size={16} />
+                    <Settings size={20} />
                   </Button>
                 </div>
               </div>
 
-              <TabsContent value="swap" className="mt-8 space-y-4">
+              <TabsContent value="swap" className="mt-14 space-y-8">
                 {showSettings ? (
                   // Inline Settings View
                   <div className="space-y-8">
@@ -270,54 +270,55 @@ export function SwapCard() {
                   // Normal Swap View
                   <>
                     {/* You pay section */}
-                    <div className="bg-[#0b0f14] rounded-2xl p-5 mb-1">
-                      <div className="text-sm text-gray-400 mb-4">You pay</div>
+                    <div className="bg-gradient-to-br from-gray-900/50 to-black/70 backdrop-blur-sm rounded-3xl p-8 border border-gray-700/30 hover:border-blue-500/30 transition-all duration-300">
+                      <div className="text-sm font-medium text-gray-300 mb-6 tracking-wide uppercase">You Pay</div>
                       <div className="flex items-center justify-between">
                         <TokenButton
                           token={payToken}
                           onTokenSelect={setPayToken}
                           type="pay"
                         />
-                        <div className="flex-1 ml-4">
+                        <div className="flex-1 ml-6">
                           <AmountInput
                             value={payAmount}
                             onChange={setPayAmount}
                             tokenSymbol={payToken.symbol}
-                            placeholder="0.9898"
+                            placeholder="0.00"
                           />
                         </div>
                       </div>
                     </div>
 
                     {/* Arrow swap button */}
-                    <div className="flex justify-center -my-1 relative z-10 py-2">
+                    <div className="flex justify-center -my-6 relative z-10 py-6">
                       <Button
                         onClick={flip}
                         size="icon"
-                        className="h-10 w-10 rounded-full bg-[#10151c] border border-[#1e2632] hover:bg-[#1a1f2e] text-gray-400 hover:text-white"
+                        className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 border border-blue-500/30"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M7 13l3 3 7-7"/>
-                          <path d="m21 21-6-6m6 6v-4.8m0 4.8h-4.8"/>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M8 3l4 8 5-1"/>
+                          <path d="M12 21V3"/>
+                          <path d="M16 21l-4-8-5 1"/>
                         </svg>
                       </Button>
                     </div>
 
                     {/* You receive section */}
-                    <div className="bg-[#0b0f14] rounded-2xl p-5 mt-1">
-                      <div className="text-sm text-gray-400 mb-4">You receive</div>
+                    <div className="bg-gradient-to-br from-gray-900/50 to-black/70 backdrop-blur-sm rounded-3xl p-8 border border-gray-700/30 hover:border-blue-500/30 transition-all duration-300">
+                      <div className="text-sm font-medium text-gray-300 mb-6 tracking-wide uppercase">You Receive</div>
                       <div className="flex items-center justify-between">
                         <TokenButton
                           token={receiveToken}
                           onTokenSelect={setReceiveToken}
                           type="receive"
                         />
-                        <div className="flex-1 ml-4">
+                        <div className="flex-1 ml-6">
                           <AmountInput
                             value={receiveAmountNum > 0 ? formatTokenAmount(receiveAmountNum, 6) : ''}
                             onChange={() => {}}
                             tokenSymbol={receiveToken.symbol}
-                            placeholder="4 002.468823"
+                            placeholder="0.00"
                             readOnly={true}
                           />
                         </div>
@@ -325,7 +326,7 @@ export function SwapCard() {
                     </div>
 
                     {/* Rate and fee information */}
-                    <div className="pt-6">
+                    <div className="pt-10">
                       <RateFeeRow
                         payToken={payToken.symbol}
                         receiveToken={receiveToken.symbol}
@@ -337,7 +338,7 @@ export function SwapCard() {
                     {/* Connect wallet button */}
                     <Button
                       onClick={handleSwap}
-                      className="w-full mt-6 h-14 text-lg font-semibold bg-gradient-to-r from-[#1D90F5] to-[#00D4FF] hover:from-[#0D7FE5] hover:to-[#00C4EF] text-white rounded-2xl"
+                      className="w-full mt-10 h-18 text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 text-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 border border-blue-500/30"
                     >
                       {isConnected ? 'Swap' : 'Connect wallet'}
                     </Button>

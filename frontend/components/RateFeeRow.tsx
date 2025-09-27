@@ -24,23 +24,24 @@ export function RateFeeRow({ payToken, receiveToken, payAmount, receiveAmount }:
     <TooltipProvider>
       <div className="space-y-4">
         {/* Exchange Rate Row - Always show */}
-        <div className="bg-[#0e1621] border border-[#223042] rounded-xl p-4">
+        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-white text-sm">
-              1 {payToken} = {payAmount > 0 ? formatTokenAmount(rate, 2) : '4014.26'} {receiveToken} ~$4014.3
+            <span className="text-white text-base font-medium">
+              1 {payToken} = {payAmount > 0 ? formatTokenAmount(rate, 2) : '4,014.26'} {receiveToken} 
+              <span className="text-slate-300 ml-2">≈ ${payAmount > 0 ? formatTokenAmount(rate, 2) : '4,014.30'}</span>
             </span>
             <button 
               onClick={() => setIsExpanded(!isExpanded)}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-all duration-200"
+              className="p-3 hover:bg-white/10 rounded-xl transition-all duration-300 group"
             >
               <svg 
-                width="14" 
-                height="14" 
+                width="16" 
+                height="16" 
                 viewBox="0 0 24 24" 
                 fill="none" 
                 stroke="currentColor" 
-                strokeWidth="2" 
-                className={`text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                strokeWidth="2.5" 
+                className={`text-slate-400 group-hover:text-white transition-all duration-300 ${isExpanded ? 'rotate-180' : ''}`}
               >
                 <path d="m6 9 6 6 6-6"/>
               </svg>
@@ -50,26 +51,30 @@ export function RateFeeRow({ payToken, receiveToken, payAmount, receiveAmount }:
 
         {/* Detailed Information - Only show when expanded */}
         {isExpanded && (
-          <div className="space-y-4 text-sm animate-in slide-in-from-top-2 duration-300">
-            <div className="flex items-center justify-between text-gray-400 py-2">
-              <span>Slippage tolerance</span>
-              <span className="text-white font-medium">Auto 0.5%</span>
-            </div>
-            
-            <div className="flex items-center justify-between text-gray-400 py-2">
-              <span>Minimum receive</span>
-              <div className="text-right">
-                <div className="text-white font-medium">~{payAmount > 0 ? formatCurrency(minReceiveAmount * receivePrice) : '$3951.03'}</div>
-                <div className="text-xs text-gray-500">{payAmount > 0 ? formatTokenAmount(minReceiveAmount) : '3951.10892'} {receiveToken}</div>
+          <div className="space-y-4 text-base animate-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center justify-between text-slate-300 py-3 border-b border-white/10">
+              <span className="font-medium">Slippage tolerance</span>
+              <div className="flex items-center space-x-2">
+                <div className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-lg text-sm font-semibold">
+                  Auto 0.5%
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center justify-between text-gray-400 py-2">
-              <span>Network Fee</span>
-              <div className="flex items-center space-x-2">
-                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                <span className="text-green-400 font-medium">Free</span>
-                <span className="text-gray-500 line-through">$0.52</span>
+            <div className="flex items-center justify-between text-slate-300 py-3 border-b border-white/10">
+              <span className="font-medium">Minimum receive</span>
+              <div className="text-right">
+                <div className="text-white font-bold text-lg">{payAmount > 0 ? formatCurrency(minReceiveAmount * receivePrice) : '$3,951.03'}</div>
+                <div className="text-sm text-slate-400">{payAmount > 0 ? formatTokenAmount(minReceiveAmount) : '3,951.10892'} {receiveToken}</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between text-slate-300 py-3">
+              <span className="font-medium">Network Fee</span>
+              <div className="flex items-center space-x-3">
+                <div className="h-3 w-3 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-green-400 font-bold text-lg">Free</span>
+                <span className="text-slate-500 line-through text-sm">$0.52</span>
               </div>
             </div>
           </div>
