@@ -2,6 +2,8 @@ import express from 'express';
 import { healthRouter } from './health.js';
 import { swapRouter } from './swap.js';
 import { orderRouter } from './order.js';
+import { oneInchRouter } from './oneInch.js';
+import { priceRouter } from './price.js';
 
 export function setupRoutes(app) {
   // Health check
@@ -10,6 +12,8 @@ export function setupRoutes(app) {
   // API routes
   app.use('/api/v1/swap', swapRouter);
   app.use('/api/v1/order', orderRouter);
+  app.use('/api/v1/1inch', oneInchRouter);
+  app.use('/api/v1/price', priceRouter);
   
   // Root endpoint
   app.get('/', (req, res) => {
