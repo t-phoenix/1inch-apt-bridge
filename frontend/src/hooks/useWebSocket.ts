@@ -18,7 +18,7 @@ export const useWebSocket = (options: UseWebSocketOptions = {}) => {
   } = options;
 
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionState, setConnectionState] = useState(WebSocket.CLOSED);
+  const [connectionState, setConnectionState] = useState<number>(WebSocket.CLOSED);
   const [subscriptions, setSubscriptions] = useState<string[]>([]);
   const [lastMessage, setLastMessage] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -196,11 +196,11 @@ export const useOrderUpdates = (orderId?: string) => {
   useEffect(() => {
     if (orderId) {
       ws.setEventHandlers({
-        onOrdersUpdate: (data) => {
-          if (data.order && data.order.id === orderId) {
-            setOrderData(data.order);
-          }
-        },
+      onOrdersUpdate: (data) => {
+        if (data && typeof data === 'object' && 'order' in data && data.order && data.order.id === orderId) {
+          setOrderData(data.order);
+        }
+      },
       });
     }
   }, [orderId]);
@@ -219,11 +219,11 @@ export const useSwapUpdates = (swapId?: string) => {
   useEffect(() => {
     if (swapId) {
       ws.setEventHandlers({
-        onSwapsUpdate: (data) => {
-          if (data.swap && data.swap.id === swapId) {
-            setSwapData(data.swap);
-          }
-        },
+      onSwapsUpdate: (data) => {
+        if (data && typeof data === 'object' && 'swap' in data && data.swap && data.swap.id === swapId) {
+          setSwapData(data.swap);
+        }
+      },
       });
     }
   }, [swapId]);

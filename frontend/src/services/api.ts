@@ -19,6 +19,7 @@ class ApiService {
     });
 
     this.setupInterceptors();
+    
   }
 
   private setupInterceptors() {
@@ -100,7 +101,7 @@ class ApiService {
     return this.client.get('/api/v1/price');
   }
 
-  async getTokenPrice(chain: string, tokenAddress: string, currency = 'usd'): Promise<AxiosResponse> {
+  async getTokenPriceFromPriceService(chain: string, tokenAddress: string, currency = 'usd'): Promise<AxiosResponse> {
     return this.client.get(`/api/v1/price/${chain}/${tokenAddress}`, {
       params: { currency }
     });
@@ -151,7 +152,7 @@ class ApiService {
     return this.client.get(`/api/v1/1inch/protocols/${chain}`);
   }
 
-  async getTokenPrice(chain: string, tokenAddress: string): Promise<AxiosResponse> {
+  async getTokenPriceFromOneInch(chain: string, tokenAddress: string): Promise<AxiosResponse> {
     return this.client.get(`/api/v1/1inch/price/${chain}`, {
       params: { tokenAddress }
     });

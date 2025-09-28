@@ -307,11 +307,11 @@ class SwapService {
     message: string;
   } {
     const statusMap = {
-      pending: { status: 'Pending', color: 'yellow', progress: 10, message: 'Waiting for confirmation' },
-      escrowed: { status: 'Escrowed', color: 'blue', progress: 50, message: 'Funds locked, waiting for secret' },
-      completed: { status: 'Completed', color: 'green', progress: 100, message: 'Swap completed successfully' },
-      failed: { status: 'Failed', color: 'red', progress: 0, message: 'Swap failed' },
-      refunded: { status: 'Refunded', color: 'gray', progress: 0, message: 'Swap refunded' },
+      pending: { status: 'Pending', statusColor: 'yellow', progress: 10, message: 'Waiting for confirmation' },
+      escrowed: { status: 'Escrowed', statusColor: 'blue', progress: 50, message: 'Funds locked, waiting for secret' },
+      completed: { status: 'Completed', statusColor: 'green', progress: 100, message: 'Swap completed successfully' },
+      failed: { status: 'Failed', statusColor: 'red', progress: 0, message: 'Swap failed' },
+      refunded: { status: 'Refunded', statusColor: 'gray', progress: 0, message: 'Swap refunded' },
     };
 
     return statusMap[swap.status] || statusMap.pending;
