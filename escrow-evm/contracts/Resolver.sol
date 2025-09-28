@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 import {console2 as console} from "forge-std/console2.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol"; // This is already correctimport {TakerTraits, TakerTraitsLib} from "./libs/TakerTraitsLib.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {TakerTraits, TakerTraitsLib} from "./libs/TakerTraitsLib.sol";
 import {ExtensionsLib} from "./libs/ExtensionsLib.sol";
-import {TakerTraitsLib, TakerTraits} from "./libs/TakerTraitsLib.sol";
+import {TakerTraitsLib} from "./libs/TakerTraitsLib.sol"; // TakerTraitsLib already imported once
 import {MakerTraitsLib, MakerTraits} from "./libs/MakerTraitsLib.sol";
 import {IOrderMixin, IBaseEscrow, IBaseExtension, IEscrowFactory, Timelocks, Address} from "./OneInchInterfaces.sol";
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
@@ -43,6 +44,7 @@ contract Resolver is Ownable {
 
     receive() external payable {} // solhint-disable-line no-empty-blocks
 
+    // 🔥 FIX APPLIED: Correctly encodes Factory Address, Selector, and Arguments.
     function getExtensions(
         IEscrowFactory.ExtraDataArgs memory extraDataArgs,
         bytes memory permit
@@ -57,28 +59,42 @@ contract Resolver is Ownable {
             uint16(0), // No time delta
             resolversCount
         );
+
+        // 1. Pack the data the Factory's 'initializeSrcEscrow' function expects 
+        // as its single 'bytes' argument (extensionData).
+        bytes memory factoryInputData = abi.encodePacked(
+            resolverExtraData,
+            abi.encode(extraDataArgs)
+        );
+
+        // 2. Use abi.encodeCall to prepend the function selector (4 bytes) to the arguments.
+        bytes memory factoryCallData = abi.encodeCall(
+            IEscrowFactory(_Factory).initializeSrcEscrow, // The function the LOP will call
+            (factoryInputData)
+        );
+
+        // 3. Pack the Target Address and the Calldata for the LOP Extension Executor.
+        bytes memory postInteractionData = abi.encodePacked(
+            _Factory,           // Target Address (20 bytes)
+            factoryCallData     // Selector (4 bytes) + Args
+        );
+
         return
             ExtensionsLib.newExtensions(
                 new bytes(0), // No Maker Asset suffix
                 new bytes(0), // No Taker Asset suffix
                 new bytes(0), // No Making Amount Data
-                abi.encodePacked(address(this)), // No Taking Amount Data
+                new bytes(0), // 🔥 MINIMAL: Taking Amount Data is now empty
                 new bytes(0), // No Predicate
                 permit, // Maker Permit
-                new bytes(0), // No Maker Asset Permit
-                abi.encodePacked(
-                    _Factory,
-                    abi.encodePacked(
-                        resolverExtraData,
-                        abi.encode(extraDataArgs)
-                    )
-                ),
+                new bytes(0), // No PreInteractionData
+                postInteractionData, // CORRECTLY PACKED PostInteractionData
                 new bytes(0) // No Custom Data
             );
     }
 
 
-    // ======= Utility Methods for testing =======
+    // ======= Utility Methods for testing (UNCHANGED) =======
 
     function getDefaultTimelock(
         // Timelocks timelocks
@@ -411,7 +427,7 @@ contract Resolver is Ownable {
         uint256 remainingMakingAmount,
         bytes calldata extraData
     ) external view returns (uint256) {
-        // Always return 0 as the taking amount since the order is filled on another chain.
+        // Always return 1 as the taking amount since the order is filled on another chain.
         return 1;
     }
 }

@@ -1,4 +1,5 @@
 // hardhat.config.js (The correct structure)
+require("dotenv").config();
 
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-foundry");
@@ -6,8 +7,7 @@ require("@nomicfoundation/hardhat-foundry");
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   paths: {
-    // 🛠️ FIX: Revert 'sources' back to a single string path.
-    sources: "./contracts", 
+    sources: "./contracts",
     cache: "./cache",
     artifacts: "./artifacts",
   },
@@ -25,5 +25,16 @@ module.exports = {
         },
       },
     ],
+  },
+  networks: {
+    polygon: {
+      url: process.env.POLYGON_RPC_URL || "",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
+  },
+  etherscan: {
+    apiKey: {
+      polygonAmoy: process.env.POLYGONSCAN_API_KEY,
+    },
   },
 };

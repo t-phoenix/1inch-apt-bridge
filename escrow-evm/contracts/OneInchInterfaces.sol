@@ -67,6 +67,14 @@ interface IEscrowFactory {
     function addressOfEscrowDst(
         IBaseEscrow.Immutables calldata immutables
     ) external view returns (address);
+
+    /**
+     * @notice Function called by the LOP Extension to initialize the source-chain escrow.
+     * @param extensionData Packed data containing resolver info and ExtraDataArgs.
+     */
+    function initializeSrcEscrow(
+        bytes calldata extensionData
+    ) external;
 }
 
 interface IBaseExtension {
@@ -91,7 +99,7 @@ interface IOrderMixin {
         Address takerAsset;
         uint makingAmount;
         uint takingAmount;
-        MakerTraits makerTraits; // TODO set is allowed sender ??
+        MakerTraits makerTraits;
     }
 
     function fillOrderArgs(
