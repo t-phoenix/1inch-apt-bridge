@@ -6,6 +6,7 @@ import { HTLCManager } from './htlcManager.js';
 import { Escrow } from '../models/Escrow.js';
 import { Transaction } from '../models/Transaction.js';
 import { verifyPreimage } from '../utils/crypto.js';
+import { wsService } from './websocketService.js';
 
 class RelayerService {
   constructor() {

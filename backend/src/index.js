@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
 import { logger } from './utils/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { rateLimiters } from './middleware/rateLimiter.js';
@@ -10,11 +11,13 @@ import { setupRoutes } from './routes/index.js';
 import { initializeDatabase } from './db/connection.js';
 import { startRelayer } from './services/relayer.js';
 import { startMonitoring } from './services/monitoringService.js';
+import { wsService } from './services/websocketService.js';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 3001;
 
 // Security middleware
@@ -65,8 +68,13 @@ async function startServer() {
     await initializeDatabase();
     logger.info('Database initialized successfully');
     
-    app.listen(PORT, () => {
+    // Initialize WebSocket service
+    wsService.initialize(server);
+    logger.info('WebSocket service initialized');
+    
+    server.listen(PORT, () => {
       logger.info(`Backend server running on port ${PORT}`);
+      logger.info(`WebSocket server running on ws://localhost:${PORT}/ws`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
 

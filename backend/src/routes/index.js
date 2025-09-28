@@ -4,6 +4,7 @@ import { swapRouter } from './swap.js';
 import { orderRouter } from './order.js';
 import { oneInchRouter } from './oneInch.js';
 import { priceRouter } from './price.js';
+import { websocketRouter } from './websocket.js';
 
 export function setupRoutes(app) {
   // Health check
@@ -14,6 +15,7 @@ export function setupRoutes(app) {
   app.use('/api/v1/order', orderRouter);
   app.use('/api/v1/1inch', oneInchRouter);
   app.use('/api/v1/price', priceRouter);
+  app.use('/api/v1/ws', websocketRouter);
   
   // Root endpoint
   app.get('/', (req, res) => {
