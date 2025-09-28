@@ -492,4 +492,75 @@ export class HTLCManager {
     
     return await service.getGasPrice();
   }
+
+  /**
+   * Process redemption on both chains when secret is revealed
+   * @param {Object} order - Order data
+   * @param {string} preimage - The secret preimage
+   * @returns {Object} Redemption results
+   */
+  async processRedemption(order, preimage) {
+    try {
+      logger.info(`Processing redemption for order ${order.id}`);
+      
+      // Verify preimage matches the hashlock
+      if (!verifyPreimage(preimage, order.hash)) {
+        throw new Error('Invalid preimage for redemption');
+      }
+
+      // Process redemption on both chains
+      const redemptionPromises = [];
+
+      if (order.fromChain === 'ethereum') {
+        redemptionPromises.push(
+          this.ethereumService.redeemHTLC(order.id, preimage)
+        );
+      } else if (order.fromChain === 'aptos') {
+        redemptionPromises.push(
+          this.aptosService.redeemHTLC(order.id, preimage)
+        );
+      }
+
+      if (order.toChain === 'ethereum') {
+        redemptionPromises.push(
+          this.ethereumService.redeemHTLC(order.id, preimage)
+        );
+      } else if (order.toChain === 'aptos') {
+        redemptionPromises.push(
+          this.aptosService.redeemHTLC(order.id, preimage)
+        );
+      }
+
+      // Execute redemptions in parallel
+      const results = await Promise.allSettled(redemptionPromises);
+      
+      // Check for failures
+      const failures = results.filter(result => result.status === 'rejected');
+      if (failures.length > 0) {
+        logger.error(`Some redemptions failed for order ${order.id}:`, failures);
+        // Continue with successful redemptions
+      }
+
+      // Update order status
+      await this.orderService.updateOrder(order.id, { 
+        status: 'completed',
+        completedAt: new Date()
+      });
+
+      logger.info(`Redemption completed for order ${order.id}`);
+      
+      return {
+        success: true,
+        results: results.map((result, index) => ({
+          chain: index < redemptionPromises.length / 2 ? order.fromChain : order.toChain,
+          status: result.status,
+          value: result.status === 'fulfilled' ? result.value : result.reason
+        }))
+      };
+      
+    } catch (error) {
+      logger.error(`Failed to process redemption for order ${order.id}:`, error);
+      throw error;
+    }
+  }
 }

@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { setupRoutes } from './routes/index.js';
 import { initializeDatabase } from './db/connection.js';
 import { startRelayer } from './services/relayer.js';
+import { startMonitoring } from './services/monitoringService.js';
 
 // Load environment variables
 dotenv.config();
@@ -40,6 +41,10 @@ async function startServer() {
     // Start relayer service
     await startRelayer();
     logger.info('Relayer service started');
+    
+    // Start monitoring service
+    await startMonitoring();
+    logger.info('Monitoring service started');
     
   } catch (error) {
     logger.error('Failed to start server:', error);

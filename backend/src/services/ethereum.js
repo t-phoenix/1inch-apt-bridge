@@ -385,9 +385,27 @@ export class EthereumService {
     try {
       logger.info(`EscrowCreated event received for swap ${swapId}`);
       
-      // Update database with escrow creation
-      // This would typically update the order status and create escrow record
-      // Implementation depends on your specific business logic
+      // Create escrow record in database
+      await Escrow.create({
+        orderId: swapId,
+        chain: 'ethereum',
+        contractAddress: this.contractAddress,
+        makerAddress: maker,
+        resolverAddress: resolver,
+        recipientAddress: recipient,
+        tokenAddress: token,
+        amount: amount.toString(),
+        hashlock: hashlock,
+        timelock: timelock.toString(),
+        safetyDeposit: safetyDeposit.toString(),
+        status: 'created',
+        creationTxHash: event.transactionHash,
+        creationBlockNumber: event.blockNumber,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+
+      logger.info(`Escrow record created for swap ${swapId} on Ethereum`);
       
     } catch (error) {
       logger.error(`Failed to handle EscrowCreated event for ${swapId}:`, error);
@@ -398,8 +416,25 @@ export class EthereumService {
     try {
       logger.info(`Redeemed event received for swap ${swapId}`);
       
-      // Update database with redemption
-      // This would typically update the order status and escrow record
+      // Update escrow record in database
+      const escrow = await Escrow.findOne({
+        where: { orderId: swapId, chain: 'ethereum' }
+      });
+      
+      if (escrow) {
+        await escrow.update({
+          status: 'claimed',
+          claimTxHash: event.transactionHash,
+          claimBlockNumber: event.blockNumber,
+          claimerAddress: redeemer,
+          preimage: preimage,
+          updatedAt: new Date()
+        });
+        
+        logger.info(`Escrow record updated for swap ${swapId} on Ethereum - claimed`);
+      } else {
+        logger.warn(`Escrow record not found for swap ${swapId} on Ethereum`);
+      }
       
     } catch (error) {
       logger.error(`Failed to handle Redeemed event for ${swapId}:`, error);
