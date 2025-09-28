@@ -1,10 +1,6 @@
 // API service for backend communication
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-
-const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001',
-  timeout: parseInt(import.meta.env.VITE_API_TIMEOUT || '30000'),
-};
+import { API_CONFIG } from '@/config/api';
 
 class ApiService {
   private client: AxiosInstance;
