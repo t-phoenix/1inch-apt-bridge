@@ -197,7 +197,8 @@ export const useOrderUpdates = (orderId?: string) => {
     if (orderId) {
       ws.setEventHandlers({
       onOrdersUpdate: (data) => {
-        if (data && typeof data === 'object' && 'order' in data && data.order && data.order.id === orderId) {
+        if (data && typeof data === 'object' && 'order' in data && data.order && 
+            typeof data.order === 'object' && 'id' in data.order && data.order.id === orderId) {
           setOrderData(data.order);
         }
       },
@@ -220,7 +221,8 @@ export const useSwapUpdates = (swapId?: string) => {
     if (swapId) {
       ws.setEventHandlers({
       onSwapsUpdate: (data) => {
-        if (data && typeof data === 'object' && 'swap' in data && data.swap && data.swap.id === swapId) {
+        if (data && typeof data === 'object' && 'swap' in data && data.swap && 
+            typeof data.swap === 'object' && 'id' in data.swap && data.swap.id === swapId) {
           setSwapData(data.swap);
         }
       },

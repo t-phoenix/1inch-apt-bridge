@@ -1,4 +1,6 @@
 // WebSocket service for real-time updates
+import { WEBSOCKET_CONFIG } from '@/config/api';
+
 export interface WebSocketMessage {
   type: string;
   data: any;
@@ -21,8 +23,8 @@ export interface WebSocketEventHandlers {
 class WebSocketService {
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
-  private reconnectInterval = 5000;
+  private maxReconnectAttempts = WEBSOCKET_CONFIG.maxReconnectAttempts;
+  private reconnectInterval = WEBSOCKET_CONFIG.reconnectInterval;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private eventHandlers: WebSocketEventHandlers = {};
   private isConnecting = false;
@@ -39,7 +41,7 @@ class WebSocketService {
 
     this.isConnecting = true;
 
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3001/ws';
+    const wsUrl = WEBSOCKET_CONFIG.url;
 
     try {
       this.ws = new WebSocket(wsUrl);
