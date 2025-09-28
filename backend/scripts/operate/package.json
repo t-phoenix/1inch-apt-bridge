@@ -1,0 +1,36 @@
+{
+  "name": "1inch-apt-bridge-operate-scripts",
+  "version": "1.0.0",
+  "description": "JavaScript scripts to operate the 1inch-apt-bridge backend",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "health": "node health-check.js",
+    "root": "node root-endpoint.js",
+    "swap:create": "node swap-create.js",
+    "swap:status": "node swap-status.js",
+    "order:get": "node order-get.js",
+    "order:update": "node order-update.js",
+    "demo": "node index.js",
+    "test": "node test-scripts.js",
+    "test:all": "npm run health && npm run root"
+  },
+  "keywords": [
+    "1inch",
+    "aptos",
+    "bridge",
+    "cross-chain",
+    "htlc",
+    "backend",
+    "scripts"
+  ],
+  "author": "ETHGlobal 2025 Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
