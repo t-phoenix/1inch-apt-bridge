@@ -445,8 +445,24 @@ export class EthereumService {
     try {
       logger.info(`Refunded event received for swap ${swapId}`);
       
-      // Update database with refund
-      // This would typically update the order status and escrow record
+      // Update escrow record in database
+      const escrow = await Escrow.findOne({
+        where: { orderId: swapId, chain: 'ethereum' }
+      });
+      
+      if (escrow) {
+        await escrow.update({
+          status: 'refunded',
+          refundTxHash: event.transactionHash,
+          refundBlockNumber: event.blockNumber,
+          refunderAddress: refunder,
+          updatedAt: new Date()
+        });
+        
+        logger.info(`Escrow record updated for swap ${swapId} on Ethereum - refunded`);
+      } else {
+        logger.warn(`Escrow record not found for swap ${swapId} on Ethereum`);
+      }
       
     } catch (error) {
       logger.error(`Failed to handle Refunded event for ${swapId}:`, error);
