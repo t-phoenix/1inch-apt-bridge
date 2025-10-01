@@ -41,8 +41,14 @@ export async function initializeDatabase() {
   try {
     logger.info('Initializing database connection...');
     
-    // Test the connection
-    await sequelize.authenticate();
+    // Test the connection with timeout
+    await Promise.race([
+      sequelize.authenticate(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database connection timeout')), 10000)
+      )
+    ]);
+    
     logger.info('Database connection established successfully');
     
     // Import models and setup associations
@@ -62,6 +68,13 @@ export async function initializeDatabase() {
     return true;
   } catch (error) {
     logger.error('Failed to initialize database:', error);
+    
+    // In development, continue without database
+    if (process.env.NODE_ENV === 'development') {
+      logger.warn('Continuing in development mode without database connection');
+      return false;
+    }
+    
     throw error;
   }
 }

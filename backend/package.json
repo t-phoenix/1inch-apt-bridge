@@ -25,6 +25,7 @@
     "@neondatabase/serverless": "^0.7.2",
     "aptos": "^1.15.0",
     "axios": "^1.6.2",
+    "express-rate-limit": "^7.1.5",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "ethers": "^6.8.1",

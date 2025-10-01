@@ -497,11 +497,30 @@ export class AptosService {
   // Event handlers
   async handleEscrowCreatedEvent(event) {
     try {
-      logger.info(`EscrowCreated event received for swap ${event.data.swap_id}`);
+      const swapId = event.data.swap_id;
+      logger.info(`EscrowCreated event received for swap ${swapId}`);
       
-      // Update database with escrow creation
-      // This would typically update the order status and create escrow record
-      // Implementation depends on your specific business logic
+      // Create escrow record in database
+      await Escrow.create({
+        orderId: swapId,
+        chain: 'aptos',
+        contractAddress: this.moduleAddress,
+        makerAddress: event.data.maker,
+        resolverAddress: event.data.resolver,
+        recipientAddress: event.data.recipient,
+        tokenAddress: event.data.token,
+        amount: event.data.amount,
+        hashlock: event.data.hashlock,
+        timelock: event.data.timelock,
+        safetyDeposit: event.data.safety_deposit,
+        status: 'created',
+        creationTxHash: event.transaction_hash,
+        creationBlockNumber: event.version,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+
+      logger.info(`Escrow record created for swap ${swapId} on Aptos`);
       
     } catch (error) {
       logger.error(`Failed to handle EscrowCreated event for ${event.data.swap_id}:`, error);
