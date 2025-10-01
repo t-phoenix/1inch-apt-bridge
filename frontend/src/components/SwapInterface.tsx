@@ -52,10 +52,12 @@ const SwapInterface = ({ onOpenSettings, onConnectWallet, onSwapExecute, isConne
     refetchToPrices();
   }, [refetchFromPrices, refetchToPrices]);
   
-  // Debounced calculation function
+  // Debounced calculation function with limited decimal places
   const calculateAmount = useCallback((value: string, rate: number, isFromField: boolean) => {
     if (!value || !rate) return '';
-    return (parseFloat(value || '0') * rate).toString();
+    const result = parseFloat(value || '0') * rate;
+    // Limit to 6 decimal places to prevent excessive precision
+    return result.toFixed(6).replace(/\.?0+$/, '');
   }, []);
   
   // Calculate amounts when prices change, but not on every keystroke
@@ -98,7 +100,7 @@ const SwapInterface = ({ onOpenSettings, onConnectWallet, onSwapExecute, isConne
   
   const slippagePercent = 0.5; // 0.5% slippage
   const slippage = `Auto ${slippagePercent}%`;
-  const minReceive = toAmount ? `${(parseFloat(toAmount) * (1 - slippagePercent/100)).toFixed(4)} ${toTokenSymbol}` : `39 795.2615 ${toTokenSymbol}`;
+  const minReceive = toAmount ? `${(parseFloat(toAmount) * (1 - slippagePercent/100)).toFixed(6)} ${toTokenSymbol}` : `39 795.2615 ${toTokenSymbol}`;
   const networkFee = "Free $2.22";
   
   // Calculate slippage-adjusted USD value
@@ -139,14 +141,23 @@ const SwapInterface = ({ onOpenSettings, onConnectWallet, onSwapExecute, isConne
     onSwapExecute(fromTokenSymbol, toTokenSymbol, fromAmount, toAmount);
   }, [onSwapExecute, fromTokenSymbol, toTokenSymbol, fromAmount, toAmount]);
 
-  // Format numbers for display
+  // Format numbers for display with max 6 decimal places
   const formatAmount = useCallback((amount: string) => {
     if (!amount) return '';
     const num = parseFloat(amount);
     if (num >= 1000) {
       return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
     }
-    return num.toString();
+    // For smaller numbers, limit to 6 decimal places
+    return num.toFixed(Math.min(6, amount.split('.')[1]?.length || 0));
+  }, []);
+
+  // Format exchange rate with max 6 decimal places
+  const formatRate = useCallback((rate: number) => {
+    if (rate >= 1) {
+      return rate.toFixed(Math.min(6, 2)); // At least 2 decimals for rates >= 1
+    }
+    return rate.toFixed(6); // Max 6 decimals for smaller rates
   }, []);
 
   return (
@@ -251,8 +262,8 @@ const SwapInterface = ({ onOpenSettings, onConnectWallet, onSwapExecute, isConne
           {/* Main exchange rate row */}
           <div className="flex items-center justify-between text-sm">
             <span className="flex items-center gap-2">
-              <span>1 {fromTokenSymbol} = {fromToRate.toFixed(2)} {toTokenSymbol}</span>
-              <span className="text-muted-foreground">~${fromTokenPrice ? Math.floor(fromTokenPrice * fromToRate).toLocaleString() : '0'}</span>
+              <span>1 {fromTokenSymbol} = {formatRate(fromToRate)} {toTokenSymbol}</span>
+              <span className="text-muted-foreground">~${fromTokenPrice ? (fromTokenPrice * fromToRate).toFixed(1) : '0'}</span>
             </span>
             <div className="flex items-center gap-1">
               <span className="text-success">🔒 Free</span>

@@ -59,12 +59,13 @@ const Navigation = ({ onConnectWallet, onAccountClick, isAdminPage = false }: Na
     <nav className="flex items-center justify-between px-6 py-2 bg-card/50 backdrop-blur-sm border-b border-border">
       {/* Logo */}
       <div className="flex items-center gap-8">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-base">1</span>
-          </div>
-          <span className="text-foreground font-semibold text-lg">inch</span>
-        </div>
+        <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <img 
+            src="/logo.svg" 
+            alt="1inch APT Bridge" 
+            className="h-8 w-auto object-contain"
+          />
+        </Link>
         
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-4">
