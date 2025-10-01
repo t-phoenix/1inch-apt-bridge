@@ -115,7 +115,7 @@ export const useRefundSwap = () => {
 export const useTokenPrice = (chain: string, tokenAddress: string, currency = 'usd') => {
   return useQuery({
     queryKey: queryKeys.tokenPrice(chain, tokenAddress),
-    queryFn: () => apiService.getTokenPrice(chain, tokenAddress, currency).then(res => res.data),
+    queryFn: () => apiService.getTokenPriceFromPriceService(chain, tokenAddress, currency).then(res => res.data),
     enabled: !!chain && !!tokenAddress,
     refetchInterval: 30000, // 30 seconds
   });

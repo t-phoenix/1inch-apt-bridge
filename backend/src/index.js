@@ -35,7 +35,11 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'http://localhost:8080', // Vite default port
+    'http://localhost:3000'  // React default port
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -65,8 +69,13 @@ app.use(errorHandler);
 // Initialize database and start server
 async function startServer() {
   try {
-    await initializeDatabase();
-    logger.info('Database initialized successfully');
+    // Try to initialize database, but don't fail if it's not available
+    const dbInitialized = await initializeDatabase();
+    if (dbInitialized) {
+      logger.info('Database initialized successfully');
+    } else {
+      logger.warn('Database not available, continuing without database');
+    }
     
     // Initialize WebSocket service
     wsService.initialize(server);
@@ -78,13 +87,17 @@ async function startServer() {
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
 
-    // Start relayer service
-    await startRelayer();
-    logger.info('Relayer service started');
-    
-    // Start monitoring service
-    await startMonitoring();
-    logger.info('Monitoring service started');
+    // Start relayer service (only if database is available)
+    if (dbInitialized) {
+      await startRelayer();
+      logger.info('Relayer service started');
+      
+      // Start monitoring service
+      await startMonitoring();
+      logger.info('Monitoring service started');
+    } else {
+      logger.warn('Skipping relayer and monitoring services (database not available)');
+    }
     
   } catch (error) {
     logger.error('Failed to start server:', error);

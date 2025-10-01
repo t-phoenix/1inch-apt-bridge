@@ -17,6 +17,10 @@ export function setupRoutes(app) {
   app.use('/api/v1/price', priceRouter);
   app.use('/api/v1/ws', websocketRouter);
   
+  // Compatibility routes (for frontend)
+  app.use('/api/prices', priceRouter);
+  app.use('/api/price', priceRouter);
+  
   // Root endpoint
   app.get('/', (req, res) => {
     res.json({

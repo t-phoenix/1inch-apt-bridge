@@ -2,48 +2,6 @@
 import rateLimit from 'express-rate-limit';
 import { logger } from '../utils/logger.js';
 
-// Memory store for rate limiting (in production, use Redis)
-const requestCounts = new Map();
-
-// Custom store for rate limiting
-const customStore = {
-  increment: (key, windowMs) => {
-    const now = Date.now();
-    const windowStart = now - windowMs;
-    
-    if (!requestCounts.has(key)) {
-      requestCounts.set(key, []);
-    }
-    
-    const requests = requestCounts.get(key);
-    
-    // Remove old requests outside the window
-    const validRequests = requests.filter(timestamp => timestamp > windowStart);
-    validRequests.push(now);
-    
-    requestCounts.set(key, validRequests);
-    
-    return {
-      totalHits: validRequests.length,
-      resetTime: new Date(now + windowMs)
-    };
-  },
-  
-  decrement: (key) => {
-    if (requestCounts.has(key)) {
-      const requests = requestCounts.get(key);
-      if (requests.length > 0) {
-        requests.shift();
-        requestCounts.set(key, requests);
-      }
-    }
-  },
-  
-  resetKey: (key) => {
-    requestCounts.delete(key);
-  }
-};
-
 // Rate limiter configuration
 const createRateLimiter = (options = {}) => {
   const {
@@ -55,10 +13,7 @@ const createRateLimiter = (options = {}) => {
     skipSuccessfulRequests = false,
     skipFailedRequests = false,
     keyGenerator = (req) => req.ip,
-    skip = (req) => false,
-    onLimitReached = (req, res, options) => {
-      logger.warn(`Rate limit exceeded for IP: ${req.ip}, Path: ${req.path}`);
-    }
+    skip = (req) => false
   } = options;
 
   return rateLimit({
@@ -74,9 +29,7 @@ const createRateLimiter = (options = {}) => {
     skipSuccessfulRequests,
     skipFailedRequests,
     keyGenerator,
-    skip,
-    onLimitReached,
-    store: customStore
+    skip
   });
 };
 
